@@ -14,7 +14,7 @@ But why not use a cloud provider to host Spark for you?
 
 * Databricks (https://databricks.com/)
     * Launched by the original authors of Apache Spark.
-    * Offers a free pricing with limited storage
+    * Offers a free Community edition with limited storage (https://community.cloud.databricks.com)
     * Supports Jupiter Notebooks for interactive coding
 
 # Research
