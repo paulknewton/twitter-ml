@@ -5,7 +5,7 @@
 # Examples
 * Apache have some examples to get you started (https://spark.apache.org/examples.html). e.g. the classic 'word count using MapReduce' or the 'calculate Pi by choosing random points'
 * The Spark code also comes with many examples (this is the Python link: https://github.com/apache/spark/tree/master/examples/src/main/python)
-* These are my annotated Python examples: either taken from other sources or invented by me (https://github.com/paulknewton/spark/blob/master/examples-python.md)
+* These are my annotated Python examples: either taken from other sources or invented by me (https://github.com/paulknewton/spark/blob/master/examples-python.md). They include explanations of how the code is working.
 
 # Hosted Spark
 You can install Spark locally - either in local or standalone mode.
