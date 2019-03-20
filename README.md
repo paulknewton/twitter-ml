@@ -1,6 +1,6 @@
 # Getting Started
 * The Apache site is a good place to start (https://spark.apache.org/), especially the [Getting Started](https://spark.apache.org/docs/latest/quick-start.html) section
-* Databricks publish a shortprimer for developers (https://pages.databricks.com/7-steps-for-a-developer-to-learn-apache-spark.html). Nothing too details, but gives a rough idea of the programming concepts and API
+* Databricks publish a shortprimer for developers (https://pages.databricks.com/7-steps-for-a-developer-to-learn-apache-spark.html). Nothing too detailed, but gives a rough idea of the programming concepts and API
 
 # Examples
 * Apache have some examples to get you started (https://spark.apache.org/examples.html). e.g. the classic 'word count using MapReduce' or the 'calculate Pi by choosing random points'
