@@ -1,3 +1,4 @@
+
 # Calculate Pi via MapReduce
 
 Another example from the Apache Spark [git repo](https://github.com/apache/spark/blob/master/examples/src/main/python/pi.py)
@@ -23,14 +24,19 @@ MapReduce is an algorithm that breaks a problem into 2 steps
 The example makes use of the 'parallelize' execution method. This splits the data set (in this case, our pack of darts to throw) into slices.
 Each slice is a partition that will be processed in parallel to all others. The level of parallel execution will depend on the cluster that executes our code, but the example shows how the Spark framework hides all of the complexity involved in distributing work packages to nodes, and combining the execution results.
 
-```
+
+```python
 import sys
 from random import random
 from operator import add
+from pyspark.sql import SparkSession
 
-partitions = 1000
+# create a SparkContext. If running in DataBricks, this is already done for you
+spark = SparkSession.builder.appName("SimpleApp").getOrCreate()
+
+partitions = 10
 # n is the number of random numbers we will generate (split over 'partitions' partitions)
-n = 100000 * partitions
+n = 100 * partitions
 
 # Function to 'throw a dart a the circle' and decide if it is in the circle.
 # Assume the circle has radius 1, so co-ordinates are generated between (-1,-1) and (1,1).
@@ -38,9 +44,9 @@ n = 100000 * partitions
 # Data point is in the circle if distance from the centre < radius (i.e. <1).
 # Distance from the centre is sqrt(x2 + y2). i.e. if sqrt(x2 + y2) < 1 exp(2) 
 def f(_):
-  x = random() * 2 - 1
-  y = random() * 2 - 1
-  return 1 if x ** 2 + y ** 2 <= 1 else 0
+x = random() * 2 - 1
+y = random() * 2 - 1
+return 1 if x ** 2 + y ** 2 <= 1 else 0
 
 #count = spark.sparkContext.parallelize(range(1, n + 1), partitions).map(f).reduce(add)
 
@@ -61,3 +67,6 @@ reduced = mapped.reduce(add)
 
 print("Pi is roughly %f" % (4.0 * reduced / n))
 ```
+
+Pi is roughly 3.136000
+
