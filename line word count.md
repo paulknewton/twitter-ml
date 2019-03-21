@@ -1,18 +1,39 @@
+
 # Annotated examples in Python
 These are based on the Getting Started (https://spark.apache.org/docs/latest/quick-start.html) examples from the  Apache site.
 
 ## Find lines with the most words
 
 Read a file into a DataFrame (via the SparkContext)
-```
-textFile = spark.read.text("FileStore/tables/README.md")
+
+
+
+```python
+from pyspark.sql import SparkSession
+
+# create a SparkContext. If running in DataBricks, this is already done for you
+spark = SparkSession.builder.appName("SimpleApp").getOrCreate()
+
+filename = "FileStore/tables/README.md"
+filename = "README.md"
+
+textFile = spark.read.text(filename)
 textFile.count() 
 textFile.first()
 ```
 
+
+
+
+Row(value='# Getting Started')
+
+
+
 Count words in a file.
 This uses built-in functions from the spark.sql module. Each function returns a Column. Note how the select function is used to transform this to a new DataFrame.
-```
+
+
+```python
 from pyspark.sql.functions import *
 #textFile.select(size(split(textFile.value, "\s+")).name("numWords")).agg(max(col("numWords"))).collect()
 
@@ -27,11 +48,29 @@ wcDf = textFile.select(size(words).name("numWords"), words)
 wcDf.agg(max(col("numWords"))).show()
 ```
 
++-------------+
+|max(numWords)|
++-------------+
+|           94|
++-------------+
+
+
+
 We can print the calculated maxValue.
 We can also use this to extract the actual rows that match this word count.
 This uses the filter method to find matching records.
-```
+
+
+```python
 # show rows with maxWords (this requires 2 passes over the DF - not efficient). Note filter syntax uses column notation.
 maxValue = wcDf.agg(max(col("numWords"))).collect()[0][0]
 wcDf.filter(wcDf.numWords == maxValue).show()
 ```
+
++--------+--------------------+
+|numWords|               words|
++--------+--------------------+
+|      94|[Spark, and, the,...|
++--------+--------------------+
+
+
