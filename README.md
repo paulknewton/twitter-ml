@@ -7,6 +7,13 @@
 * The Spark code also comes with many examples (this is the Python link to the Git repo: https://github.com/apache/spark/tree/master/examples/src/main/python)
 * These are my annotated Python examples: either taken from other sources or invented by me (https://github.com/paulknewton/spark/blob/master/examples-python.md). They include explanations of how the code is working, which data types are used etc. I noted these down when I was working through the examples - they helped me, so I hope they help you too.
 
+# Streaming
+Spark and the other platforms like Hadoop have their origins in batch processing - crunching large data sets over hours and hours, and a magic result pops out the other end. But this doesn't fit all of our use cases - data is often continuous and needs to be processed in real-time. Spark provides a complete streaming package to support this. And most importantly, it uses (almost) the same programming model. This makes life much easier for developers. The more I read about streaming, the more I think this is where Spark really shines.
+
+* Start with the excellent [programming guide](https://spark.apache.org/docs/latest/streaming-programming-guide.html) on the Apache site
+* There are a number of tutorials and examples on-line. I like [this one](https://prateekvjoshi.com/2015/12/22/analyzing-real-time-data-with-spark-streaming-in-python/) which reads a data stream from a socket and classifies it in real-time. Simple. Clear. And shows how to use lamba functions.
+* Here is another one from [Databricks](https://databricks.com/spark/getting-started-with-apache-spark/streaming) which is the hosting platform I have been playing with. A more complex example that reads JSON event data from files.
+
 # Hosted Spark
 You can run Spark in many different modes - either locally as a standlone installation, or - more usefully - as as cluster to perform parallel computation. All the instructions are on the Apache site.
 
@@ -16,6 +23,7 @@ But why not use a cloud provider to host Spark for you? Lets you focus on the pr
     * Launched by the original authors of Apache Spark.
     * Offers a free Community edition with limited storage (https://community.cloud.databricks.com)
     * Supports Jupiter Notebooks for interactive coding and execution on clusters.
+    * This is the one I have been using. I don't if it is better than the others, my experiences have been very positive so far - simple, reliable and does what I need.
 
 # Research
 These are some useful sections on the more theoretical ideas that you find in Spark.
