@@ -34,6 +34,7 @@ Some random bits and pieces on functional programming and related stuff. Not nec
 * [Monkey patching](https://www.geeksforgeeks.org/monkey-patching-in-python-dynamic-behavior/) - allows you to dynamically change runtime behaviour in Python
 * [Currying](https://en.wikipedia.org/wiki/Currying) - transforming multi-argument functions to a sequence of single-argument functions. Some [Python-specific](https://www.python-course.eu/currying_in_python.php) examples.
 * [Chaining DataFrame transformations](https://medium.com/@mrpowers/chaining-custom-pyspark-transformations-4f38a8c7ae55) - how to define transformation functions to they can be chained as a sequence. Avoids lots of redundant DataFrame variables.
+* [Reducing DataFrames](https://medium.com/@mrpowers/performing-operations-on-multiple-columns-in-a-pyspark-dataframe-36e97896c378) - different solutions for apply reduce functions to DataFrames
 
 ## Machine Learning
 * Spark enables computation and analysis of large data sets, so is well-suited to the area of machine learning. Spark includes a machine learning framework called [Mlib](https://spark.apache.org/mllib/).
