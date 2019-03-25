@@ -26,8 +26,15 @@ Spark and the other platforms like Hadoop have their origins in batch processing
 * There are a number of tutorials and examples on-line. I like [this one](https://prateekvjoshi.com/2015/12/22/analyzing-real-time-data-with-spark-streaming-in-python/) which reads a data stream from a socket and classifies it in real-time. Simple. Clear. And shows how to use lamba functions.
 * Here is another one from [Databricks](https://databricks.com/spark/getting-started-with-apache-spark/streaming) which is the hosting platform I have been playing with. A more complex example that reads JSON event data from files.
 
-# Research
+# Research & Random Ideas
 These are some useful sections on the more theoretical ideas that you find in Spark.
+
+## Functional Programming
+Some random bits and pieces on functional programming and related stuff. Not necessarily specific to Spark or Big Data, but useful.
+* [Monkey patching](https://www.geeksforgeeks.org/monkey-patching-in-python-dynamic-behavior/) - allows you to dynamically change runtime behaviour in Python
+* [Currying](https://en.wikipedia.org/wiki/Currying) - transforming multi-argument functions to a sequence of single-argument functions. Some [Python-specific](https://www.python-course.eu/currying_in_python.php) examples.
+* [Chaining DataFrame transformations](https://medium.com/@mrpowers/chaining-custom-pyspark-transformations-4f38a8c7ae55) - how to define transformation functions to they can be chained as a sequence. Avoids lots of redundant DataFrame variables.
+
 ## Machine Learning
 * Spark enables computation and analysis of large data sets, so is well-suited to the area of machine learning. Spark includes a machine learning framework called [Mlib](https://spark.apache.org/mllib/).
 * A full university course online! CS229: Machine Learning (http://cs229.stanford.edu/ and https://see.stanford.edu/Course/CS229). Full download of course material and on-line videos. This is a full course from Stanford University, so be prepared to invest a significant amount of time. And yes, you will need a reasonable level of mathematics.
