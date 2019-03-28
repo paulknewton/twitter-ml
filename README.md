@@ -13,7 +13,8 @@
 * If you really want to run a Spark installation locally, I would suggest going the [docker](https://spark.apache.org/downloads.html) route. Just run a single docker command line to pull a pre-prepared image with all dependencies.
     * [This](https://github.com/CoorpAcademy/docker-pyspark) is a vanilla Spark image ready for use (Spark 2.0)
     * [This](https://jupyter-docker-stacks.readthedocs.io/en/latest/index.html) is an image containing Spark and Jupyter notebooks. These notebooks are great! Let's you run your programs interactively by typing them into a notebook. Gives you roughly the same experience as the Databricks example above. Here is a [tutorial](https://levelup.gitconnected.com/using-docker-and-pyspark-134cd4cab867) on installing the image if you prefer.
-    
+* If you want to build a real-world hardware cluster, you can run Spark on a cluster of Raspberry Pi computers. Do not expect lightning performance, but this is a one way of actually building a cluster of machines to deploy a Spark network. Very interesting. You can find quite a few links. Try [here](http://fisheyefocus.com/fisheyeview/?p=548) or [here](http://bailiwick.io/2015/07/07/create-your-own-apache-spark-cluster-using-raspberry-pi-2/)
+
 # Examples
 * Apache have some examples to get you started (https://spark.apache.org/examples.html). e.g. the classic 'word count using MapReduce' or 'calculate Pi by choosing random points'. These are good introductions to using the Spark API (and functional programming in general).
 * The Spark code also comes with many examples (this is the Python link to the Git repo: https://github.com/apache/spark/tree/master/examples/src/main/python)
