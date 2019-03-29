@@ -8,6 +8,7 @@ rdd = sc.textFile("/FileStore/tables/brexit.txt")
 print("#lines = %d" % rdd.count())
 
 # drop non-alpha characters
+import re
 rdd = rdd.map(lambda x: re.sub("[^a-zA-Z\s]+","", x).lower().strip())
 #print('\n'.join(rdd.take(10)))
 
@@ -16,8 +17,8 @@ words = rdd.flatMap(lambda x: x.split(" "))
 #print('\n'.join(words.take(10)))
 print("#words = %d" % words.count())
 
-# drop empty words
-words = words.filter(lambda x: len(x) > 0)
+# drop empty and single letter words
+words = words.filter(lambda x: len(x) > 1)
 
 # drop stop words
 import nltk
@@ -42,6 +43,7 @@ words_to_plot = unique_words.takeOrdered(80, key = lambda x: -x[1])
 
 # create a dictionary of data {x,y}
 import pandas as pd
+import matplotlib.pyplot as plt
 words_word = [x[0] for x in words_to_plot]
 words_count = [x[1] for x in words_to_plot]
 words_dict = {"word": words_word, "frequency": words_count}
@@ -54,5 +56,6 @@ plt.title("Word Frequency", fontsize=28)
 plt.xticks(size=18)
 plt.yticks(size=18)
 plt.ylabel("")
+
 display(word_plot.figure)
 
