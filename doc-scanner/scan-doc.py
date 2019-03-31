@@ -3,7 +3,7 @@
 # Data displayed using pandas matlab plots.
 
 # read the file into an RDD
-rdd = sc.textFile("/FileStore/tables/brexit.txt")
+rdd = sc.textFile("brexit.txt")
 #print('\n'.join(rdd.take(10)))
 print("#lines = %d" % rdd.count())
 
