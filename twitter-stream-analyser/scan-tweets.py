@@ -19,7 +19,7 @@ def parse_tweets(http_resp):
   iter = http_resp.iter_lines()
   rdd = spark.sparkContext.parallelize([])
   
-  for i in range(0,500):
+  for i in range(0,50):
     line = next(iter).decode('UTF-8')
     #print(line)
     full_tweet = json.loads(line)
