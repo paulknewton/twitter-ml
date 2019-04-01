@@ -1,8 +1,7 @@
 
-# Annotated examples in Python
-These are based on the Getting Started (https://spark.apache.org/docs/latest/quick-start.html) examples from the  Apache site.
-
-## Find lines with the most words
+# Find lines with the most words
+This is an example based on the Getting Started examples (https://spark.apache.org/docs/latest/quick-start.html) from the  Apache site.
+The sample shows how to calculate the line(s) containing the most number of words using Spark Dataframes. It does not use a MapReduce model, but shows some of the basic API of a DataFrame or the spark.sql functions.
 
 Start by reading a file into a DataFrame (via the SparkContext)
 
@@ -19,10 +18,10 @@ textFile = spark.read.text(filename)
 textFile.count() 
 textFile.first()
 ```
-Now split the file into rows.
+Now split the file into rows. One line in the text file is one row.
+
 ```
 from pyspark.sql.functions import *
-#textFile.select(size(split(textFile.value, "\s+")).name("numWords")).agg(max(col("numWords"))).collect()
 
 # creates a column of arrays (array is spark.sql function split using regexp)
 words = split(textFile.value, "\s+").name("words")
@@ -35,15 +34,15 @@ wcDf = textFile.select(size(words).name("numWords"), words)
 wcDf.agg(max(col("numWords"))).show()
 ```
 
+This outputs:
+```
 +-------------+
 |max(numWords)|
 +-------------+
 |           94|
 +-------------+
+```
 
-
-
-We can print the calculated maxValue.
 We can also use this to extract the actual rows that match this word count.
 This uses the filter method to find matching records.
 
@@ -54,10 +53,11 @@ maxValue = wcDf.agg(max(col("numWords"))).collect()[0][0]
 wcDf.filter(wcDf.numWords == maxValue).show()
 ```
 
+This outputs:
+```
 +--------+--------------------+
 |numWords|               words|
 +--------+--------------------+
 |      94|[Spark, and, the,...|
 +--------+--------------------+
-
-
+```
