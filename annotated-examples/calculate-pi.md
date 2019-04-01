@@ -1,14 +1,15 @@
 
 # Calculate Pi via MapReduce
 
-Another example from the Apache Spark [git repo](https://github.com/apache/spark/blob/master/examples/src/main/python/pi.py)
+Another example from the Apache Spark [git repo](https://github.com/apache/spark/blob/master/examples/src/main/python/pi.py).
+This one uses a MapReduce paradigm to calculate (approximately) the value of Pi.
 
 Imagine a circle drawn inside a square.
 This example calculates Pi by randomly throwing darts (well, creating random data points) and seeing if these fall inside a pre-defined circle.
 Pi is calculated by measuring the ratio of points that are in the circle compared to the points falling outside the circle.
 The size of the circle and 'dartboard' (actually a square) are intentionally chosen to conveniently simplify the equation (circle has radius 1).
 
-This shows one way of apprimating Pi. The more darts you throw (by increasing 'n'), the mor accurate the calculation.
+This shows one way of approximating Pi. The more darts you throw (by increasing 'n'), the mor accurate the calculation.
 But the main objective of the example is to show:
 
 1. how to solve problems using a MapReduce paradigm
