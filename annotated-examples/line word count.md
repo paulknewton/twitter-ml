@@ -1,9 +1,11 @@
 
 # Find lines with the most words
 This is an example based on the Getting Started examples (https://spark.apache.org/docs/latest/quick-start.html) from the  Apache site.
-The sample shows how to calculate the line(s) containing the most number of words using Spark Dataframes. It does not use a MapReduce model, but shows some of the basic API of a DataFrame or the spark.sql functions.
+The sample finds the line(s) in a text file with the most number of words.
 
-Start by reading a file into a DataFrame (via the SparkContext)
+The example does not use a MapReduce model, but shows the basic DataFrame API which is the main data abstraction in Spark.
+
+Start by reading a file into a DataFrame (via the SparkContext). Return a line count and show the first row.
 
 ```
 from pyspark.sql import SparkSession
@@ -18,7 +20,7 @@ textFile = spark.read.text(filename)
 textFile.count() 
 textFile.first()
 ```
-Now split the file into rows. One line in the text file is one row.
+Now split each line into an array of words using the split function. This array of words can be counted to show the number of words on each line.
 
 ```
 from pyspark.sql.functions import *
@@ -43,7 +45,7 @@ This outputs:
 +-------------+
 ```
 
-We can also use this to extract the actual rows that match this word count.
+We can use this to extract the actual rows that match this word count.
 This uses the filter method to find matching records.
 
 
