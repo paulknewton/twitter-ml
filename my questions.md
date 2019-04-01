@@ -5,5 +5,8 @@
 ```
 salarySumDF = explodeDF.agg({"salary" : "sum"})
 ```
-* 
-* try a streaming example
+* try a streaming example (e.g. Twitter analysis)
+* try some machine learning
+    * MLlib - linear regression, classification etc
+    * MLlib - unsupervised learning e.g. clustering
+    * Deep learning - e.g. with TensorFlow
