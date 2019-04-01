@@ -4,11 +4,9 @@ These are based on the Getting Started (https://spark.apache.org/docs/latest/qui
 
 ## Find lines with the most words
 
-Read a file into a DataFrame (via the SparkContext)
+Start by reading a file into a DataFrame (via the SparkContext)
 
-
-
-```python
+```
 from pyspark.sql import SparkSession
 
 # create a SparkContext. If running in DataBricks, this is already done for you
@@ -21,19 +19,8 @@ textFile = spark.read.text(filename)
 textFile.count() 
 textFile.first()
 ```
-
-
-
-
-Row(value='# Getting Started')
-
-
-
-Count words in a file.
-This uses built-in functions from the spark.sql module. Each function returns a Column. Note how the select function is used to transform this to a new DataFrame.
-
-
-```python
+Now split the file into rows.
+```
 from pyspark.sql.functions import *
 #textFile.select(size(split(textFile.value, "\s+")).name("numWords")).agg(max(col("numWords"))).collect()
 
