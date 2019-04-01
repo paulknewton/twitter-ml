@@ -1,6 +1,9 @@
-# Running the Twitter client
+# Twitter Stream Analyser
+
+## Running the Kafka server
 
 Our Twitter feed uses Apache Kafka to publish the stream of tweets.
+Download it from [here](https://kafka.apache.org/). Unpack the tarball.
 
 Start by running Zookeeper:
 ```
@@ -24,7 +27,17 @@ Start the console listener:
 bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic brexit --from-beginning
 ```
 
-Start our Twitter feed:
+## Running the Twitter client
+I suggest creating a python virtualenv.
+Install the python libraries:
+
+```
+pip install kafka-python
+pip install python-twitter
+pip install tweepy
+```
+
+Start the Twitter feed:
 ```
 python twitter-to-kafka.py
 ```
