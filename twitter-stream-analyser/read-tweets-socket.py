@@ -11,6 +11,6 @@ kafkaStream = KafkaUtils.createStream(ssc, 'kafka:2181', 'spark-streaming', {'br
 lines = kafkaStream.map(lambda x: x[1])
 lines.pprint()
 
-ssc.start()  
+ssc.start()
 ssc.awaitTermination()
 

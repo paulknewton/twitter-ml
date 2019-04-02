@@ -1,9 +1,19 @@
 # Analyse a text document and extract key metrics.
-# Uses basic RDD/list techniques and MapReduce for counting.
-# Data displayed using pandas matlab plots.
+#
+# Uses basic RDD/list techniques and MapReduce for counting lines/words/unique words.
+# Removes common words via the nltk library.
+# Plots most frequently used words using pandas matlab plots.
+#
+
+# connect to a Spark cluster
+from pyspark.sql import SparkSession
+spark = SparkSession\
+        .builder\
+        .appName("Doc Scanner")\
+        .getOrCreate()
 
 # read the file into an RDD
-rdd = sc.textFile("brexit.txt")
+rdd = spark.sparkContext.textFile("tmp/brexit.txt")
 #print('\n'.join(rdd.take(10)))
 print("#lines = %d" % rdd.count())
 
@@ -20,12 +30,12 @@ print("#words = %d" % words.count())
 # drop empty and single letter words
 words = words.filter(lambda x: len(x) > 1)
 
-# drop stop words
+# drop stop words (downloads words if needed)
 import nltk
-nltk.download("stopwords")
-from nltk.corpus import stopwords
-stopwords = stopwords.words('english')
-words = words.filter(lambda x: x not in stopwords)
+#nltk.download("stopwords")
+#from nltk.corpus import stopwords
+#stopwords = stopwords.words('english')
+#words = words.filter(lambda x: x not in stopwords)
 
 # extract pairs (MapReduce)
 word_pairs = words.map(lambda x: (x,1))
@@ -57,5 +67,5 @@ plt.xticks(size=18)
 plt.yticks(size=18)
 plt.ylabel("")
 
-display(word_plot.figure)
-
+#display(word_plot.figure)
+plt.savefig('tmp/word-freq.png')
