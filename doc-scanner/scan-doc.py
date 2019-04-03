@@ -31,11 +31,15 @@ print("#words = %d" % words.count())
 words = words.filter(lambda x: len(x) > 1)
 
 # drop stop words (downloads words if needed)
-import nltk
-#nltk.download("stopwords")
-#from nltk.corpus import stopwords
-#stopwords = stopwords.words('english')
-#words = words.filter(lambda x: x not in stopwords)
+# If you are behind a proxy, set NLTK_PROXY in your environment
+import nltk, os
+if 'NLTK_PROXY' in os.environ:
+    print('Using proxy %s' % os.environ['NLTK_PROXY'])
+    nltk.set_proxy(os.environ['NLTK_PROXY'])
+nltk.download("stopwords")
+from nltk.corpus import stopwords
+stopwords = stopwords.words('english')
+words = words.filter(lambda x: x not in stopwords)
 
 # extract pairs (MapReduce)
 word_pairs = words.map(lambda x: (x,1))
