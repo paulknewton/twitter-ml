@@ -1,9 +1,10 @@
-# Analyse a text document and extract key metrics.
-#
-# Uses basic RDD/list techniques and MapReduce for counting lines/words/unique words.
-# Removes common words via the nltk library.
-# Plots most frequently used words using pandas matlab plots.
-#
+"""
+Analyse a text document and extract key metrics.
+
+Uses basic RDD/list techniques and MapReduce for counting lines/words/unique words.
+Removes common words via the nltk library.
+Plots most frequently used words using pandas matlab plots.
+"""
 
 import argparse, logging, re
 
@@ -26,6 +27,8 @@ spark = SparkSession\
         .getOrCreate()
 
 def flatten_text(rdd):
+    """Split the RDD into individual words (1 per row) and return the transformed RDD."""
+    
     #logger.debug('RDD:')
     #logger.debug('\n'.join(rdd.take(10)))
     print('num lines = %d' % rdd.count())
@@ -45,6 +48,8 @@ def flatten_text(rdd):
 
 
 def drop_stopwords(rdd):
+    """Remove commonly occurring 'stop' words from the flattenned RDD and return the new RDD."""
+    
     print('num words with stop words = %d' % rdd.count())
 
     # drop empty and single letter words
@@ -69,6 +74,8 @@ def drop_stopwords(rdd):
 
 
 def filter_unique(rdd):
+    """Count occurrences of each word and return an RDD of (word,count) pairs."""
+    
     print('num words non-unique = %d' % rdd.count())
 
     # extract pairs (MapReduce)
@@ -85,6 +92,8 @@ def filter_unique(rdd):
 
 
 def plot_graph(rdd):
+    """Save a MATLAB-style figure of an RDD with the form (word, freq)."""
+    
     # plot some graphs (pandas has more control than built-in databricks visualisations)
     words_to_plot = rdd.takeOrdered(80, key = lambda x: -x[1])
     #display(words_to_plot)
