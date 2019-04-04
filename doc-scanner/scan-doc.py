@@ -25,8 +25,7 @@ spark = SparkSession\
         .appName("Doc Scanner")\
         .getOrCreate()
 
-def dump_stats(rdd):
-    print("--------------------\nDumping stats\n--------------------")
+def flatten_text(rdd):
     #logger.debug('RDD:')
     #logger.debug('\n'.join(rdd.take(10)))
     print('num lines = %d' % rdd.count())
@@ -40,13 +39,18 @@ def dump_stats(rdd):
     words = rdd.flatMap(lambda x: x.split(" "))
     #logger.debug('RDD INDIV. WORDS:')
     #logger.debug('\n'.join(words.take(10)))
-    print("num words = %d" % words.count())
+    print('num words = %d' % words.count())
 
-    # drop empty and single letter words
-    words = words.filter(lambda x: len(x) > 1)
+    return words
 
 
 def drop_stopwords(rdd):
+    print('num words with stop words = %d' % rdd.count())
+
+    # drop empty and single letter words
+    words = rdd.filter(lambda x: len(x) > 1)
+    print('num words with short words removed = %d' % words.count())
+
     logger.debug('Dropping stopwords with NLTK')
 
     # drop stop words (downloads words if needed)
@@ -58,10 +62,17 @@ def drop_stopwords(rdd):
     nltk.download("stopwords")
     from nltk.corpus import stopwords
     stopwords = stopwords.words('english')
-    words = rdd.filter(lambda x: x not in stopwords)
+    words = words.filter(lambda x: x not in stopwords)
+    print('num words without stop words = %d' % words.count())
+
+    return words
+
+
+def filter_unique(rdd):
+    print('num words non-unique = %d' % rdd.count())
 
     # extract pairs (MapReduce)
-    word_pairs = words.map(lambda x: (x,1))
+    word_pairs = rdd.map(lambda x: (x,1))
     #logger.debug(word_pairs.count())
     #logger.debug(word_pairs.take(10))
 
@@ -118,10 +129,13 @@ if __name__ == "__main__":
     # read the file into an RDD
     logger.info('Processing %s' % args.file)
     rdd = spark.sparkContext.textFile(args.file)
-    dump_stats(rdd)
+
+    rdd = flatten_text(rdd)
 
     if args.drop_stopwords:
         rdd = drop_stopwords(rdd)
+
+    rdd = filter_unique(rdd)
 
     if args.plot:
         plot_graph(rdd)
