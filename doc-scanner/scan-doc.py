@@ -6,7 +6,7 @@ Removes common words via the nltk library.
 Plots most frequently used words using pandas matlab plots.
 """
 
-import argparse, logging, re
+import argparse, logging, re, sys
 
 # init logging
 logger = logging.getLogger('csvIt')
@@ -123,17 +123,31 @@ def plot_graph(rdd):
     plt.savefig('tmp/word-freq.png')
 
 
+def calc_sentiment(rdd):
+    import stanfordnlp
+    stanfordnlp.download('en')   # This downloads the English models for the neural pipeline
+    nlp = stanfordnlp.Pipeline() # This sets up a default neural pipeline in English
+    doc = nlp("Barack Obama was born in Hawaii.  He was elected president in 2008.")
+    doc.sentences[0].print_dependencies()
+
+
 if __name__ == "__main__":
 
+    # read command-line args
     parser = argparse.ArgumentParser(description='Spark program to process text files and analyse contents')
     parser.add_argument('-v', dest='verbose', action='store_true', default=False, help='verbose logging')
     parser.add_argument('file', help='file to process')
-    parser.add_argument('-s', dest='drop_stopwords', action='store_true', default=False, help='strip stopwords')
+    parser.add_argument('-w', dest='drop_stopwords', action='store_true', default=False, help='strip stopwords')
     parser.add_argument('-p', dest='plot', action='store_true', default=False, help='plot figure')
+    parser.add_argument('-s', dest='sentiment', action='store_true', default=False, help='activate sentiment anlaysis')
     args = parser.parse_args()
     if args.verbose:
          logger.setLevel(logging.DEBUG)
     logger.debug("args = %s" % args)
+
+    if args.sentiment:
+        calc_sentiment(None)
+        sys.exit()
 
     # read the file into an RDD
     logger.info('Processing %s' % args.file)

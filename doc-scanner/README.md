@@ -9,6 +9,7 @@ Start by installing the python dependencies:
 pip install nltk
 pip install pandas
 pip install matplotlib
+pip install corenlp-python
 ```
 
 ## Running the program
