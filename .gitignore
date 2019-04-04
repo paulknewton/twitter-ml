@@ -1,3 +1,5 @@
 .DS_Store
 addAPIs.sh
 junk
+twitter-stream-analyser/run-producer.sh
+doc-scanner/runit.sh
