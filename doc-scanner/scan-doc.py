@@ -15,33 +15,36 @@ handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s -
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
+
 def todo(logger, s):
     logger.info("*** TODO: " + s)
 
 
 # connect to a Spark cluster
 from pyspark.sql import SparkSession
-spark = SparkSession\
-        .builder\
-        .appName("Doc Scanner")\
-        .getOrCreate()
+
+spark = SparkSession \
+    .builder \
+    .appName("Doc Scanner") \
+    .getOrCreate()
+
 
 def flatten_text(rdd):
     """Split the RDD into individual words (1 per row) and return the transformed RDD."""
-    
-    #logger.debug('RDD:')
-    #logger.debug('\n'.join(rdd.take(10)))
+
+    # logger.debug('RDD:')
+    # logger.debug('\n'.join(rdd.take(10)))
     print('num lines = %d' % rdd.count())
 
     # drop non-alpha characters
-    rdd = rdd.map(lambda x: re.sub("[^a-zA-Z\s]+","", x).lower().strip())
-    #logger.debug('RDD WITH ONLY ALPHA CHARS:')
-    #logger.debug('\n'.join(rdd.take(10)))
+    rdd = rdd.map(lambda x: re.sub("[^a-zA-Z\s]+", "", x).lower().strip())
+    # logger.debug('RDD WITH ONLY ALPHA CHARS:')
+    # logger.debug('\n'.join(rdd.take(10)))
 
     # split RDD into individual words
     words = rdd.flatMap(lambda x: x.split(" "))
-    #logger.debug('RDD INDIV. WORDS:')
-    #logger.debug('\n'.join(words.take(10)))
+    # logger.debug('RDD INDIV. WORDS:')
+    # logger.debug('\n'.join(words.take(10)))
     print('num words = %d' % words.count())
 
     return words
@@ -49,7 +52,7 @@ def flatten_text(rdd):
 
 def drop_stopwords(rdd):
     """Remove commonly occurring 'stop' words from the flattenned RDD and return the new RDD."""
-    
+
     print('num words with stop words = %d' % rdd.count())
 
     # drop empty and single letter words
@@ -75,28 +78,28 @@ def drop_stopwords(rdd):
 
 def filter_unique(rdd):
     """Count occurrences of each word and return an RDD of (word,count) pairs."""
-    
+
     print('num words non-unique = %d' % rdd.count())
 
     # extract pairs (MapReduce)
-    word_pairs = rdd.map(lambda x: (x,1))
-    #logger.debug(word_pairs.count())
-    #logger.debug(word_pairs.take(10))
+    word_pairs = rdd.map(lambda x: (x, 1))
+    # logger.debug(word_pairs.count())
+    # logger.debug(word_pairs.take(10))
 
     # count by reduction (MapReduce)
     unique_words = word_pairs.reduceByKey(lambda a, b: a + b)
     print('num unique words = %d' % unique_words.count())
-    #logger.debug(unique_words.takeOrdered(30, key = lambda x: -x[1]))
+    # logger.debug(unique_words.takeOrdered(30, key = lambda x: -x[1]))
 
     return unique_words
 
 
 def plot_graph(rdd):
     """Save a MATLAB-style figure of an RDD with the form (word, freq)."""
-    
+
     # plot some graphs (pandas has more control than built-in databricks visualisations)
-    words_to_plot = rdd.takeOrdered(80, key = lambda x: -x[1])
-    #display(words_to_plot)
+    words_to_plot = rdd.takeOrdered(80, key=lambda x: -x[1])
+    # display(words_to_plot)
 
     # create a dictionary of data {x,y}
     import pandas as pd
@@ -118,15 +121,18 @@ def plot_graph(rdd):
     plt.yticks(size=18)
     plt.ylabel("")
 
-    #display(word_plot.figure)
+    # display(word_plot.figure)
     logger.debug('Saving figure')
-    plt.savefig('tmp/word-freq.png')
+    plt.savefig('word-freq.png')
 
 
 def calc_sentiment(rdd):
+    """Calculate the sentiment of the text."""
+
+    raise NotImplementedError("To be implemented")
     import stanfordnlp
-    stanfordnlp.download('en')   # This downloads the English models for the neural pipeline
-    nlp = stanfordnlp.Pipeline() # This sets up a default neural pipeline in English
+    stanfordnlp.download('en')  # This downloads the English models for the neural pipeline
+    nlp = stanfordnlp.Pipeline()  # This sets up a default neural pipeline in English
     doc = nlp("Barack Obama was born in Hawaii.  He was elected president in 2008.")
     doc.sentences[0].print_dependencies()
 
@@ -137,12 +143,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Spark program to process text files and analyse contents')
     parser.add_argument('-v', dest='verbose', action='store_true', default=False, help='verbose logging')
     parser.add_argument('file', help='file to process')
-    parser.add_argument('-w', dest='drop_stopwords', action='store_true', default=False, help='strip stopwords')
-    parser.add_argument('-p', dest='plot', action='store_true', default=False, help='plot figure')
-    parser.add_argument('-s', dest='sentiment', action='store_true', default=False, help='activate sentiment anlaysis')
+    parser.add_argument('--stopwords', dest='drop_stopwords', action='store_true', default=False, help='strip stopwords')
+    parser.add_argument('--plot', dest='plot', action='store_true', default=False, help='plot figure')
+    parser.add_argument('--sentiment', dest='sentiment', action='store_true', default=False, help='activate sentiment anlaysis')
     args = parser.parse_args()
     if args.verbose:
-         logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
     logger.debug("args = %s" % args)
 
     if args.sentiment:
