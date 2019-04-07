@@ -1,4 +1,4 @@
 .DS_Store
 addAPIs.sh
 twitter-stream-analyser/run-producer.sh
-doc-scanner/runit.sh
+runit.sh
