@@ -2,3 +2,4 @@
 addAPIs.sh
 twitter-stream-analyser/run-producer.sh
 runit.sh
+*.pickle
