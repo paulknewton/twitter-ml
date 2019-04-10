@@ -1,3 +1,8 @@
+# Simple Twitter producer for TCP sockets
+#
+# Listens for tweets containing hashtags (see 'track...') and publishes to a socket
+#
+
 import sys, requests, requests_oauthlib, json
 
 # Twitter app config

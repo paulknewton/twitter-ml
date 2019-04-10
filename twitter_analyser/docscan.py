@@ -9,7 +9,7 @@ Plots most frequently used words using pandas matlab plots.
 import argparse, logging, re, sys
 
 # init logging
-logger = logging.getLogger('doc-scanner')
+logger = logging.getLogger('doc_scanner')
 handler = logging.StreamHandler()
 handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 logger.addHandler(handler)
