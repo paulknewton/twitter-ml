@@ -1,2 +1,7 @@
 .DS_Store
 *.pyc
+addAPIs.sh
+run-*.sh
+*.pickle
+*/lib/*
+twitter_to_kafka.py
