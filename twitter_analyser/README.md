@@ -1,4 +1,5 @@
 # Twitter Stream Analyser
+This is a project to analyse text streams - either standlone documennts or Twitter feeds - and performs various forms of textual analysis. Uses Apache Spark to built textual metrics, then processes the text via various classification models analysis to evalute the sentiment (models via SciKit-Learn).
 
 ## The Document Scanner
 This is a standlone program that reads a text document and analyses it using NLTK and Spark.
