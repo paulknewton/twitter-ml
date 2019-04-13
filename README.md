@@ -1,6 +1,5 @@
 # TwitterML
-Project to analyse text streams using big data and machine learning.
-Uses Apache Spark to built textual metrics, then processes the text via various classification models analysis to evaluate the sentiment (models via SciKit-Learn).
+Project to analyse text streams (tweets or docs) using big data and machine learning. Uses Apache Spark to built textual metrics, then processes the text via various classification models analysis to evaluate the sentiment (models via SciKit-Learn).
 
 ## The Document Scanner
 This is a standlone program that reads a text document and analyses it using NLTK and Spark.
