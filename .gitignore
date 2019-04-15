@@ -3,5 +3,5 @@
 addAPIs.sh
 run-*.sh
 *.pickle
-*/lib/*
+lib/*
 twitter_to_kafka.py

@@ -7,6 +7,8 @@ Plots most frequently used words using pandas matlab plots.
 """
 
 import argparse, logging, re, sys
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # init logging
 logger = logging.getLogger('doc_scanner')
@@ -25,16 +27,16 @@ from pyspark.sql import SparkSession
 
 spark = SparkSession \
     .builder \
-    .appName("Doc Scanner") \
+    .appName("Doc Scanner").master("local").config("spark.driver.host", "localhost") \
     .getOrCreate()
 
 
-def flatten_text(rdd):
+def flatten_text(rdd, stats):
     """Split the RDD into individual words (1 per row) and return the transformed RDD."""
 
     # logger.debug('RDD:')
     # logger.debug('\n'.join(rdd.take(10)))
-    print('num lines = %d' % rdd.count())
+    stats.append(("num lines", rdd.count()))
 
     # drop non-alpha characters
     rdd = rdd.map(lambda x: re.sub("[^a-zA-Z\s]+", "", x).lower().strip())
@@ -45,19 +47,19 @@ def flatten_text(rdd):
     words = rdd.flatMap(lambda x: x.split(" "))
     # logger.debug('RDD INDIV. WORDS:')
     # logger.debug('\n'.join(words.take(10)))
-    print('num words = %d' % words.count())
+    stats.append(("num words", words.count()))
 
     return words
 
 
-def drop_stopwords(rdd):
+def drop_stopwords(rdd, stats):
     """Remove commonly occurring 'stop' words from the flattenned RDD and return the new RDD."""
 
-    print('num words with stop words = %d' % rdd.count())
+    stats.append(("num words with stop words", rdd.count()))
 
     # drop empty and single letter words
     words = rdd.filter(lambda x: len(x) > 1)
-    print('num words with short words removed = %d' % words.count())
+    stats.append(("num words with short words removed", words.count()))
 
     logger.debug('Dropping stopwords with NLTK')
 
@@ -71,15 +73,15 @@ def drop_stopwords(rdd):
     from nltk.corpus import stopwords
     stopwords = stopwords.words('english')
     words = words.filter(lambda x: x not in stopwords)
-    print('num words without stop words = %d' % words.count())
+    stats.append(("num words without stop words", words.count()))
 
     return words
 
 
-def filter_unique(rdd):
+def filter_unique(rdd, stats):
     """Count occurrences of each word and return an RDD of (word,count) pairs."""
 
-    print('num words non-unique = %d' % rdd.count())
+    stats.append(("num words non-unique", rdd.count()))
 
     # extract pairs (MapReduce)
     word_pairs = rdd.map(lambda x: (x, 1))
@@ -88,22 +90,28 @@ def filter_unique(rdd):
 
     # count by reduction (MapReduce)
     unique_words = word_pairs.reduceByKey(lambda a, b: a + b)
-    print('num unique words = %d' % unique_words.count())
+    stats.append(("num unique words", unique_words.count()))
     # logger.debug(unique_words.takeOrdered(30, key = lambda x: -x[1]))
 
     return unique_words
 
 
-def plot_graph(rdd):
-    """Save a MATLAB-style figure of an RDD with the form (word, freq)."""
+def print_stats(stats):
+    for s in stats:
+        print(s)
 
-    # plot some graphs (pandas has more control than built-in databricks visualisations)
+
+def plot_stats(stats):
+    df = pd.DataFrame.from_dict({"statistic": [stat[0] for stat in stats], "summary": [stat[1] for stat in stats]})
+    df.set_index("statistic", inplace=True)
+    df.plot(kind="barh")
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_word_freq(rdd):
+    # plot some graphs
     words_to_plot = rdd.takeOrdered(80, key=lambda x: -x[1])
-    # display(words_to_plot)
-
-    # create a dictionary of data {x,y}
-    import pandas as pd
-    import matplotlib.pyplot as plt
 
     logger.debug('Preparing data...')
     words_word = [x[0] for x in words_to_plot]
@@ -116,25 +124,15 @@ def plot_graph(rdd):
     logger.debug('Preparing plot...')
     word_plot = df_words.plot(figsize=(20, 50), x="word", y="frequency", kind="barh", legend=False)
     word_plot.invert_yaxis()
-    plt.title("Word Frequency", fontsize=28)
-    plt.xticks(size=18)
-    plt.yticks(size=18)
+    plt.title("Word Frequency", fontsize=20)
+    plt.xticks(size=8)
+    plt.yticks(size=8)
     plt.ylabel("")
 
     # display(word_plot.figure)
     logger.debug('Saving figure')
-    plt.savefig('word-freq.png')
-
-
-def calc_sentiment(rdd):
-    """Calculate the sentiment of the text."""
-
-    raise NotImplementedError("To be implemented")
-    import stanfordnlp
-    stanfordnlp.download('en')  # This downloads the English models for the neural pipeline
-    nlp = stanfordnlp.Pipeline()  # This sets up a default neural pipeline in English
-    doc = nlp("Barack Obama was born in Hawaii.  He was elected president in 2008.")
-    doc.sentences[0].print_dependencies()
+    # plt.savefig('word-freq.png')
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -143,9 +141,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Spark program to process text files and analyse contents')
     parser.add_argument('-v', dest='verbose', action='store_true', default=False, help='verbose logging')
     parser.add_argument('file', help='file to process')
-    parser.add_argument('--stopwords', dest='drop_stopwords', action='store_true', default=False, help='strip stopwords')
+    parser.add_argument('--stopwords', dest='drop_stopwords', action='store_true', default=False,
+                        help='strip stopwords')
     parser.add_argument('--plot', dest='plot', action='store_true', default=False, help='plot figure')
-    parser.add_argument('--sentiment', dest='sentiment', action='store_true', default=False, help='activate sentiment anlaysis')
+    parser.add_argument('--sentiment', dest='sentiment', action='store_true', default=False,
+                        help='activate sentiment anlaysis')
     args = parser.parse_args()
     if args.verbose:
         logger.setLevel(logging.DEBUG)
@@ -159,12 +159,20 @@ if __name__ == "__main__":
     logger.info('Processing %s' % args.file)
     rdd = spark.sparkContext.textFile(args.file)
 
-    rdd = flatten_text(rdd)
+    stats = []  # list of tuples (description, value)
+    rdd = flatten_text(rdd, stats)
 
     if args.drop_stopwords:
-        rdd = drop_stopwords(rdd)
+        rdd = drop_stopwords(rdd, stats)
 
-    rdd = filter_unique(rdd)
+    rdd = filter_unique(rdd, stats)
+
+    # print_stats(stats)
 
     if args.plot:
-        plot_graph(rdd)
+        # import matplotlib
+        # font = {'size': 6}
+        # matplotlib.rc('font', **font)
+
+        plot_stats(stats)
+        plot_word_freq(rdd)
