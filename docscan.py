@@ -104,8 +104,10 @@ def print_stats(stats):
 def plot_stats(stats):
     df = pd.DataFrame.from_dict({"statistic": [stat[0] for stat in stats], "summary": [stat[1] for stat in stats]})
     df.set_index("statistic", inplace=True)
-    df.plot(kind="barh")
+    df.plot(kind="barh", grid=True)
     plt.tight_layout()
+
+    plt.savefig("fig_summary.png")
     plt.show()
 
 
@@ -122,16 +124,14 @@ def plot_word_freq(rdd):
     df_words = pd.DataFrame(words_dict)
 
     logger.debug('Preparing plot...')
-    word_plot = df_words.plot(figsize=(20, 50), x="word", y="frequency", kind="barh", legend=False)
+    word_plot = df_words.plot(figsize=(20, 50), x="word", y="frequency", kind="barh", legend=False, grid=True)
     word_plot.invert_yaxis()
     plt.title("Word Frequency", fontsize=20)
     plt.xticks(size=8)
     plt.yticks(size=8)
     plt.ylabel("")
 
-    # display(word_plot.figure)
-    logger.debug('Saving figure')
-    # plt.savefig('word-freq.png')
+    plt.savefig('fig_word_freq.png')
     plt.show()
 
 
