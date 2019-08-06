@@ -1,3 +1,5 @@
+[![DeepSource](https://static.deepsource.io/deepsource-badge-light.svg)](https://deepsource.io/gh/paulknewton/twitterML/?ref=repository-badge)
+
 # TwitterML
 Project to analyse text streams (tweets or docs) using big data and machine learning. Uses Apache Spark to built textual metrics, then processes the text via various classification models to evaluate the sentiment (models via SciKit-Learn).
 
