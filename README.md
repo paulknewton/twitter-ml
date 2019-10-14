@@ -1,3 +1,6 @@
+[![pyup](https://pyup.io/repos/github/paulknewton/twitter_ml/shield.svg)](https://pyup.io/account/repos/github/paulknewton/twitter_ml)
+[![python3](https://pyup.io/repos/github/paulknewton/twitter_ml/python-3-shield.svg)](https://pyup.io/account/repos/github/paulknewton/twitter_ml)
+
 [![DeepSource](https://static.deepsource.io/deepsource-badge-light.svg)](https://deepsource.io/gh/paulknewton/twitter_ml/?ref=repository-badge)
 
 # TwitterML
