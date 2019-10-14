@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/paulknewton/twitter_ml.svg?branch=master)](https://travis-ci.org/paulknewton/twitter_ml)
+[![codecov](https://codecov.io/gh/paulknewton/twitter_ml/branch/master/graph/badge.svg)](https://codecov.io/gh/paulknewton/twitter_ml)
 [![pyup](https://pyup.io/repos/github/paulknewton/twitter_ml/shield.svg)](https://pyup.io/account/repos/github/paulknewton/twitter_ml)
 [![python3](https://pyup.io/repos/github/paulknewton/twitter_ml/python-3-shield.svg)](https://pyup.io/account/repos/github/paulknewton/twitter_ml)
 
