@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/paulknewton/twitter_ml/branch/master/graph/badge.svg)](https://codecov.io/gh/paulknewton/twitter_ml)
 [![pyup](https://pyup.io/repos/github/paulknewton/twitter_ml/shield.svg)](https://pyup.io/account/repos/github/paulknewton/twitter_ml)
 [![python3](https://pyup.io/repos/github/paulknewton/twitter_ml/python-3-shield.svg)](https://pyup.io/account/repos/github/paulknewton/twitter_ml)
-[![readthedocs](https://readthedocs.org/projects/twitter_ml/badge/?version=latest)](https://twitter_ml.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/twitter-ml/badge/?version=latest)](https://twitter-ml.readthedocs.io/en/latest/?badge=latest)
 
 [![DeepSource](https://static.deepsource.io/deepsource-badge-light.svg)](https://deepsource.io/gh/paulknewton/twitter_ml/?ref=repository-badge)
 
