@@ -1,16 +1,1 @@
-# kafka-python>=1.4.6
-# matplotlib>=3.0.3
-nltk>=3.4.5
-# numpy>=1.16.2
-# oauthlib>=3.0.1
-# pandas>=0.24.2
-# psutil>=5.6.1
-# py4j>=0.10.7
-# pypandoc>=1.4
-# PySocks>=1.6.8
-# pyspark>=2.4.0
-# pyspark-stubs>=2.4.0.post1
-scikit-learn>=0.20.3
-# scipy>=1.2.1
-# sklearn>=0.0
-# tweepy>=3.7.0
+.
