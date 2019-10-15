@@ -4,6 +4,12 @@
 Installation
 ============
 
+Dependencies
+------------
+
+* `Apache Spark <y>`_ - You will need spark installed/downloaded on your machine to run this. Note: when running on a Mac, I had to (downgrade) to Java v8 to get Spark to run (otherwise even the Spark examples fail).
+* `Apache Kafka <https://kafka.apache.org/>`_ - Our Twitter feed uses Apache Kafka to publish the stream of tweets. Download it and unpack the tarball.
+
 
 Stable release
 --------------

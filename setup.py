@@ -39,7 +39,13 @@ setup(
             'twitter_ml=twitter_ml.cli:main',
         ],
     },
-    install_requires=requirements,
+    install_requires=[
+        'sklearn>=0.0',
+        'kafka-python>=1.4.6',
+        'nltk>=3.4.5',
+        'scikit-learn>=0.20.3',
+        'tweepy>=3.7.0'
+    ],
     license="GNU General Public License v3",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
