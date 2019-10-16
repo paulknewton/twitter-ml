@@ -35,7 +35,7 @@ class VoteClassifier(ClassifierI):
         votes = []
         for c in self._classifiers:
             v = c[0].classify(features)
-            logger.debug("%s: %s" % (c[1], v))
+            logger.debug("%s: %s", c[1], v)
             votes.append(v)
         majority_vote = mode(votes)
         logger.debug("Voting Classifier: %s", majority_vote)
@@ -57,7 +57,7 @@ class VoteClassifier(ClassifierI):
 def saveit(classifier, filename):
     """Save the classifier to a pickle."""
     filename = "models/" + filename
-    logger.debug("Saving classifier to %s..." % filename)
+    logger.debug("Saving classifier to %s...", filename)
     classifier_f = open(filename, "wb")
     pickle.dump(classifier, classifier_f)
     classifier_f.close()
@@ -76,7 +76,7 @@ def find_features(word_features, document):
 def create_feature_sets():
     # get the training set
     if "NLTK_PROXY" in os.environ:
-        logger.debug("Using proxy %s" % os.environ["NLTK_PROXY"])
+        logger.debug("Using proxy %s", os.environ["NLTK_PROXY"])
         nltk.set_proxy(os.environ["NLTK_PROXY"])
     nltk.download('movie_reviews')
     from nltk.corpus import movie_reviews
@@ -95,13 +95,13 @@ def create_feature_sets():
         all_words.append(w.lower())
 
     all_words = nltk.FreqDist(all_words)
-    logger.debug("Frequency dist of 15 most common words:%s" % all_words.most_common(15))
-    logger.debug("Frequency of 'stupid':%d" % all_words["stupid"])
+    logger.debug("Frequency dist of 15 most common words:%s", all_words.most_common(15))
+    logger.debug("Frequency of 'stupid':%d", all_words["stupid"])
     word_features = list(all_words.keys())[:3000]
 
     # save feature list
     feature_fn = "models/features.pickle"
-    logger.debug("Saving feature list to %s..." % feature_fn)
+    logger.debug("Saving feature list to %s...", feature_fn)
     features_f = open(feature_fn, "wb")
     pickle.dump(word_features, features_f)
     features_f.close()
@@ -112,9 +112,9 @@ def create_feature_sets():
 
 def create_classifier(c, desc, training_data, testing_data):
     """Create a classifier of a specific type, train the classifier, evaluate the accuracy then save it to a .pickle file."""
-    logger.debug("Training %s" % desc)
+    logger.debug("Training %s", desc)
     trained_c = c.train(training_data)
-    logger.debug("%s %% accuracy: %f" % (desc, nltk.classify.accuracy(trained_c, testing_data) * 100))
+    logger.debug("%s %% accuracy: %f", desc, nltk.classify.accuracy(trained_c, testing_data) * 100)
     saveit(trained_c, desc + ".pickle")
 
     return trained_c

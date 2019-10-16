@@ -22,11 +22,6 @@ handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s -
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
-
-def todo(logger, s):
-    logger.info("*** TODO: " + s)
-
-
 spark = SparkSession \
     .builder \
     .appName("Doc Scanner").master("local").config("spark.driver.host", "localhost") \
@@ -70,7 +65,7 @@ def drop_stopwords(rdd, stats):
     import nltk
     import os
     if 'NLTK_PROXY' in os.environ:
-        logger.debug('Using proxy %s' % os.environ['NLTK_PROXY'])
+        logger.debug('Using proxy %s', os.environ['NLTK_PROXY'])
         nltk.set_proxy(os.environ['NLTK_PROXY'])
     nltk.download("stopwords")
     from nltk.corpus import stopwords
@@ -152,13 +147,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.verbose:
         logger.setLevel(logging.DEBUG)
-    logger.debug("args = %s" % args)
+    logger.debug("args = %s", args)
 
     if args.sentiment:
         raise NotImplementedError(args.sentiment)
 
     # read the file into an RDD
-    logger.info('Processing %s' % args.file)
+    logger.info('Processing %s', args.file)
     rdd = spark.sparkContext.textFile(args.file)
 
     stats = []  # list of tuples (description, value)
