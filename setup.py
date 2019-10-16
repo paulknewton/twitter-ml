@@ -11,7 +11,13 @@ with open('README.md') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [ ]
+requirements = [
+    'sklearn',
+    'kafka-python',
+    'nltk',
+    'scikit-learn',
+    'tweepy'
+]
 
 setup_requirements = ['pytest-runner', ]
 
@@ -39,13 +45,7 @@ setup(
             'twitter_ml=twitter_ml.cli:main',
         ],
     },
-    install_requires=[
-        'sklearn>=0.0',
-        'kafka-python>=1.4.6',
-        'nltk>=3.4.5',
-        'scikit-learn>=0.20.3',
-        'tweepy>=3.7.0'
-    ],
+    install_requires=requirements,
     license="GNU General Public License v3",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
