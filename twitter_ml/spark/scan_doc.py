@@ -16,7 +16,7 @@ import pandas as pd
 from pyspark.sql import SparkSession
 
 # init logging
-logger = logging.getLogger('doc_scanner')
+logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
 handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 logger.addHandler(handler)
