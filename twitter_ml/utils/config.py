@@ -36,7 +36,6 @@ class Config:
         logger.debug("Config value %s = %s", key, value)
         return value
 
-
     @staticmethod
     def _get_config_value(key: str, config_dict: Dict, default):
         try:

@@ -55,6 +55,6 @@ if __name__ == "__main__":
 
     output = StdOutListener()
     auth = OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
+    auth.set_access_token(twitter_token, twitter_secret)
     stream = Stream(auth, output)
     stream.filter(track=[twitter_topic])
