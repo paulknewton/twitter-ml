@@ -11,13 +11,9 @@ with open('README.md') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [
-    'sklearn',
-    'kafka-python',
-    'nltk',
-    'scikit-learn',
-    'tweepy'
-]
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+#requirements = [ ]
 
 setup_requirements = ['pytest-runner', ]
 
