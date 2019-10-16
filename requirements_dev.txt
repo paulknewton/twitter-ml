@@ -9,6 +9,6 @@ twine>=1.14.0
 pytest>=4.6.5
 pytest-runner>=5.1
 m2r>=0.2.1
-codecov
+#codecov
 coverage>=4.5.4
 #pytest-cov
