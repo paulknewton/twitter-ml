@@ -16,7 +16,8 @@ requirements = [
     'kafka-python',
     'nltk',
     'scikit-learn',
-    'tweepy'
+    'tweepy',
+    'PyYAML'
 ]
 
 setup_requirements = ['pytest-runner', ]
