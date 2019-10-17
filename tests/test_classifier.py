@@ -1,7 +1,7 @@
 import json
 import logging
 
-from twitter_ml.classify.sentiment import classify_sentiment
+from twitter_ml.classify.sentiment import Sentiment
 
 logger = logging.getLogger("sentiment-nltk")
 logger.setLevel(logging.INFO)
@@ -13,8 +13,9 @@ def test_basic_classification():
         "This is bad.": "neg"
     }
 
+    classifier = Sentiment()
     for text, expected_classification in test_data.items():
-        (sentiment, confidence) = classify_sentiment(text)
+        (sentiment, confidence) = classifier.classify_sentiment(text)
         print("%s\nClassification: %s with Confidence: %f" % (text, sentiment, confidence))
         assert sentiment == expected_classification
 
@@ -27,7 +28,8 @@ def test_classify_json():
             "text"]: "pos"
     }
 
+    classifier = Sentiment()
     for text, expected_classification in test_data.items():
-        (sentiment, confidence) = classify_sentiment(text)
+        (sentiment, confidence) = classifier.classify_sentiment(text)
         print("%s\nClassification: %s with Confidence: %f" % (text, sentiment, confidence))
         assert sentiment == expected_classification
