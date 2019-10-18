@@ -21,8 +21,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Classifies text sentiment based on scikit and NLTK models")
     parser.add_argument("--text", nargs="+", help="text to classify")
     parser.add_argument("--files", nargs="+", help="files to classify")
-    parser.add_argument("--classifier", nargs=1,
-                        help="name of the specific classifier to use (default: a voting classifier")
+    parser.add_argument("--classifier", help="name of the specific classifier to use (default: a voting classifier")
     parser.add_argument("--waffle", action="store_true", default=False, help="create a waffle picture of the results")
     args = parser.parse_args()
 

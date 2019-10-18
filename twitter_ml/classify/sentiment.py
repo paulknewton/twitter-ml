@@ -36,8 +36,10 @@ class VoteClassifier(ClassifierI):
         :return calculated category of the features (pos/neg)
         """
         if sub_classifier:
+            logger.info("Using sub-classifier '%s'" % sub_classifier)
             classifier_list = { sub_classifier: self._classifiers[sub_classifier] }
         else:
+            logger.info("Using VoteClassifier")
             classifier_list = self._classifiers
 
         votes = []
@@ -46,8 +48,6 @@ class VoteClassifier(ClassifierI):
             logger.info("%s: %s: %s", label, c[1], v)
             votes.append(v)
         majority_vote = mode(votes)
-        logger.info("Voting Classifier: %s", majority_vote)
-
         return majority_vote
 
     def confidence(self, features, sub_classifier:str=None) -> float:
@@ -57,8 +57,10 @@ class VoteClassifier(ClassifierI):
         :return rate of +ve votes / classifiers
         """
         if sub_classifier:
+            logger.info("Using sub-classifier '%s'" % sub_classifier)
             classifier_list = { sub_classifier: self._classifiers[sub_classifier] }
         else:
+            logger.info("Using VoteClassifier")
             classifier_list = self._classifiers
 
         votes = []
@@ -155,16 +157,13 @@ class Sentiment:
         self.voting_classifier = VoteClassifier(sub_classifiers)
         Sentiment._saveit(self.voting_classifier, "voting.pickle")
 
-    def classify_sentiment(self, text: str, classifier: str=None) -> Tuple[Any, float]:
+    def classify_sentiment(self, text: str, sub_classifier: str=None) -> Tuple[Any, float]:
         """
         Classify a piece of text as positive ("pos") or negative ("neg")
         :param text: the text to classify
-        :param classifier: name of the specific sub-classifier to use (default: use a voting classifier)
+        :param sub_classifier: name of the specific sub-classifier to use (default: use a voting classifier)
         :return: pos or neg
         """
-        if classifier:
-            logger.info("Using %s sub-classifier" % classifier)
-
         if not self.voting_classifier:
             # load classifiers from disk
             logger.debug("Reading classifiers from disk...")
@@ -181,4 +180,4 @@ class Sentiment:
         # build feature set for the text being classified
         feature_set = Utils.get_feature_vector(self.word_features, text.split())
 
-        return self.voting_classifier.classify(feature_set, classifier), self.voting_classifier.confidence(feature_set, classifier)
+        return self.voting_classifier.classify(feature_set, sub_classifier), self.voting_classifier.confidence(feature_set, sub_classifier)
