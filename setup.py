@@ -18,7 +18,8 @@ requirements = [
     'scikit-learn',
     'tweepy',
     'PyYAML',
-    'PyWaffle'
+    'PyWaffle',
+    'pyspark'
 ]
 
 setup_requirements = ['pytest-runner', ]
