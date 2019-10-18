@@ -14,6 +14,7 @@ Project to analyse text streams (tweets or docs) using big data and machine lear
 * Documentation: https://twitter_ml.readthedocs.io
 
 ## Features
-* Document Scanner - a standalone program that reads a text document and analyses it using NLTK and Spark.
+* Text Classify - a standalone program for classifying text or text files using NLTK
+* Document Scanner - a program for classifying text documents on the Spark platform
 * Twitter-Kafka Publisher - reads tweets from Twitter and pumps them into a Kafka server (where they can be consumed by out Twitter Consumer programs).
 * Twitter Analyser - reads tweets from Kafka and performs analysis of the text using the Spark platform.
