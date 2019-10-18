@@ -36,7 +36,7 @@ class VoteClassifier(ClassifierI):
         :return calculated category of the features (pos/neg)
         """
         if sub_classifier:
-            logger.info("Using sub-classifier '%s'" % sub_classifier)
+            logger.info("Using sub-classifier '%s'", sub_classifier)
             classifier_list = { sub_classifier: self._classifiers[sub_classifier] }
         else:
             logger.info("Using VoteClassifier")
@@ -57,7 +57,7 @@ class VoteClassifier(ClassifierI):
         :return rate of +ve votes / classifiers
         """
         if sub_classifier:
-            logger.info("Using sub-classifier '%s'" % sub_classifier)
+            logger.info("Using sub-classifier '%s'", sub_classifier)
             classifier_list = { sub_classifier: self._classifiers[sub_classifier] }
         else:
             logger.info("Using VoteClassifier")
