@@ -6,7 +6,9 @@ import logging.config
 import sys
 from collections import Counter
 
+import matplotlib.pyplot as plt
 import yaml
+from pywaffle import Waffle
 
 from twitter_ml.classify.sentiment import Sentiment
 
@@ -21,7 +23,7 @@ if __name__ == "__main__":
     parser.add_argument("--files", nargs="+", help="files to classify")
     parser.add_argument("--classifier", nargs=1,
                         help="name of the specific classifier to use (default: a voting classifier")
-    parser.add_argument("--waffle", action="store_true", default=False)
+    parser.add_argument("--waffle", action="store_true", default=False, help="create a waffle picture of the results")
     args = parser.parse_args()
 
     classifier = Sentiment()
@@ -47,14 +49,14 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # plot the results
-    import matplotlib.pyplot as plt
-    from pywaffle import Waffle
+    if args.waffle:
+        fig = plt.figure(
+            FigureClass=Waffle,
+            rows=10,
+            columns=20,
+            values=Counter(results),
+            figsize=(5, 3)
+        )
 
-    fig = plt.figure(
-        FigureClass=Waffle,
-        rows=5,
-        columns=10,
-        values=Counter(results),
-        figsize=(5, 3)
-    )
-    plt.show()
+        plt.savefig("waffle.png", bbox_inches='tight')
+        plt.show()

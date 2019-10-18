@@ -13,6 +13,8 @@ Project to analyse text streams (tweets or docs) using big data and machine lear
 * Free software: GNU General Public License v3
 * Documentation: https://twitter_ml.readthedocs.io
 
+![waffle](sample_waffle.png)
+
 ## Features
 * Text Classify - a standalone program for classifying text or text files using NLTK
 * Document Scanner - a program for classifying text documents on the Spark platform

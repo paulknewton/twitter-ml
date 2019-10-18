@@ -9,7 +9,7 @@ Dependencies
 
 * `Apache Spark <y>`_ - You will need spark installed/downloaded on your machine to run this. Note: when running on a Mac, I had to (downgrade) to Java v8 to get Spark to run (otherwise even the Spark examples fail).
 * `Apache Kafka <https://kafka.apache.org/>`_ - Our Twitter feed uses Apache Kafka to publish the stream of tweets. Download it and unpack the tarball.
-
+* The scipy toolkit is installed automatically below, but on Windows you need to make sure you have the Microsoft C++ libraries installed. Follow the instructions `here <https://www.microsoft.com/en-us/download/details.aspx?id=48145>`_.
 
 Stable release
 --------------

@@ -10,15 +10,22 @@ A standalone program for classifying text or text files using NLTK:
 
     $ python twitter_ml/classify/classify_text.py -h
 
-    usage: classify_text.py [-h] [--text TEXT] [--files FILES [FILES ...]]
+    usage: classify_text.py [-h] [--text TEXT [TEXT ...]]
+                            [--files FILES [FILES ...]] [--classifier CLASSIFIER]
+                            [--waffle]
 
     Classifies text sentiment based on scikit and NLTK models
 
     optional arguments:
       -h, --help            show this help message and exit
-      --text TEXT           text to classify
+      --text TEXT [TEXT ...]
+                            text to classify
       --files FILES [FILES ...]
                             files to classify
+      --classifier CLASSIFIER
+                            name of the specific classifier to use (default: a
+                            voting classifier
+      --waffle              create a waffle picture of the results
 
 for example:
 
@@ -34,6 +41,16 @@ for example:
     2019-10-18 13:34:34,076 - twitter_ml.classify.sentiment - INFO - Nu SVC classifier from SciKit: neg
     2019-10-18 13:34:34,077 - twitter_ml.classify.sentiment - INFO - Voting Classifier: neg
     Classification: neg; Confidence: 1.000000
+
+or:
+
+.. code-block:: console
+
+    $ python twitter_ml/classify/classify_text.py --waffle --text "This is bad" "This is great" "And this is great as well"
+
+will generate a waffle diagram summarising the results (in this case 25% negative, 75% positive).
+
+.. figure:: sample_waffle.png
 
 Document Scanner
 ----------------
