@@ -27,7 +27,7 @@ class VoteClassifier(ClassifierI):
         """
         self._classifiers = classifiers.copy()  # copy the list in case it is changed elsewhere
 
-    def classify(self, features, sub_classifier:str=None):
+    def classify(self, features, sub_classifier: str=None):
         """
         Classify the features using the list of internal classifiers. Classification is calculated by majority vote.
         :param features: the features to classify
@@ -49,7 +49,7 @@ class VoteClassifier(ClassifierI):
         majority_vote = mode(votes)
         return majority_vote
 
-    def confidence(self, features, sub_classifier:str=None) -> float:
+    def confidence(self, features, sub_classifier: str=None) -> float:
         """
         Return the confidence of the classification
         :param features: the features to classify
