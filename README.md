@@ -16,7 +16,7 @@ Project to analyse text streams (tweets or docs) using big data and machine lear
 ![waffle](sample_waffle.png)
 
 ## Features
-* Text Classify - a standalone program for classifying text or text files using NLTK
+* Text Classify - a standalone program for classifying the sentiment of text using NLTK
 * Document Scanner - a program for classifying text documents on the Spark platform
 * Twitter-Kafka Publisher - reads tweets from Twitter and pumps them into a Kafka server (where they can be consumed by out Twitter Consumer programs).
 * Twitter Analyser - reads tweets from Kafka and performs analysis of the text using the Spark platform.

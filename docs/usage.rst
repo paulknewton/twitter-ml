@@ -4,7 +4,7 @@ Usage
 
 Text Classifier
 ---------------
-A standalone program for classifying text or text files using NLTK:
+A standalone program for classifying the sentiment of text using NLTK.
 
 .. code-block:: console
 
