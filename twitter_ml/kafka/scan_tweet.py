@@ -9,6 +9,7 @@ from twitter_ml.classify.sentiment import Sentiment
 sc = SparkContext(appName="PythonSparkStreamingKafka")
 sc.setLogLevel("WARN")
 
+# TODO read from config file
 ssc = StreamingContext(sc, 10)
 kafkaStream = KafkaUtils.createStream(ssc, 'kafka:2181', 'sentiment-analyser', {'brexit': 1})
 
