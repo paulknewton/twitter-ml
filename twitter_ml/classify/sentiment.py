@@ -1,10 +1,9 @@
 """Based on the excellent NLTK tutorial at:
     https://pythonprogramming.net/text-classification-nltk-tutorial/"""
-
 import logging
 import pickle
 from statistics import mode
-from typing import Any, Tuple, List
+from typing import Any, Tuple, Dict
 
 import nltk
 from nltk.classify import ClassifierI
@@ -22,37 +21,48 @@ class VoteClassifier(ClassifierI):
     """Classifier based on a collection of other classifiers. Classifiers input based on the majority decisions of the sub-classifiers.
     Note: this could be replaced by the equivalent class in SciKit-Learn."""
 
-    def __init__(self, classifiers: List[Tuple[Any, str]]):
+    def __init__(self, classifiers: Dict[str, Tuple[Any, str]]):
         """
         Create voting classifier from a list of (classifier, description) tuples.
         :param classifiers: the list of sub-classifiers used in the voting
         """
         self._classifiers = classifiers.copy()  # copy the list in case it is changed elsewhere
 
-    def classify(self, features):
+    def classify(self, features, sub_classifier:str=None):
         """
         Classify the features using the list of internal classifiers. Classification is calculated by majority vote.
         :param features: the features to classify
+        :param sub_classifier: the name of the sub-classifier to use (default: use all classifiers and take a vote
         :return calculated category of the features (pos/neg)
         """
+        if sub_classifier:
+            classifier_list = { sub_classifier: self._classifiers[sub_classifier] }
+        else:
+            classifier_list = self._classifiers
+
         votes = []
-        for c in self._classifiers:
+        for label, c in classifier_list.items():
             v = c[0].classify(features)
-            logger.info("%s: %s", c[1], v)
+            logger.info("%s: %s: %s", label, c[1], v)
             votes.append(v)
         majority_vote = mode(votes)
         logger.info("Voting Classifier: %s", majority_vote)
 
         return majority_vote
 
-    def confidence(self, features) -> float:
+    def confidence(self, features, sub_classifier:str=None) -> float:
         """
         Return the confidence of the classification
         :param features: the features to classify
         :return rate of +ve votes / classifiers
         """
+        if sub_classifier:
+            classifier_list = { sub_classifier: self._classifiers[sub_classifier] }
+        else:
+            classifier_list = self._classifiers
+
         votes = []
-        for c in self._classifiers:
+        for _label, c in classifier_list.items():
             v = c[0].classify(features)
             votes.append(v)
 
@@ -107,36 +117,54 @@ class Sentiment:
         logger.debug("Training classifiers...")
 
         # create the sub classifiers, and save this to disk in case we need them later
-        sub_classifiers = [
-            (Sentiment._create_classifier(nltk.NaiveBayesClassifier, "naivebayes", training_data, testing_data),
-             "Naive Bayes classifier from NLTK"), (
-                Sentiment._create_classifier(SklearnClassifier(MultinomialNB()), "multinomialnb", training_data,
+        sub_classifiers = {
+            "naivebayes": (
+                Sentiment._create_classifier(nltk.NaiveBayesClassifier, "naivebayes", training_data,
                                              testing_data),
-                "Multinomial NB classifier from SciKit"), (
-                Sentiment._create_classifier(SklearnClassifier(BernoulliNB()), "bernouillinb", training_data,
+                "Naive Bayes classifier from NLTK"),
+            "multinomilnb": (
+                Sentiment._create_classifier(SklearnClassifier(MultinomialNB()), "multinomialnb",
+                                             training_data,
                                              testing_data),
-                "Bernouilli NB classifier from SciKit"), (
-                Sentiment._create_classifier(SklearnClassifier(LogisticRegression()), "logisticregression",
+                "Multinomial NB classifier from SciKit"),
+            "bernouillinb": (
+                Sentiment._create_classifier(SklearnClassifier(BernoulliNB()), "bernouillinb",
+                                             training_data,
+                                             testing_data),
+                "Bernouilli NB classifier from SciKit"),
+            "logisticregression": (
+                Sentiment._create_classifier(SklearnClassifier(LogisticRegression()),
+                                             "logisticregression",
                                              training_data,
                                              testing_data),
                 "Logistic Regression classifier from SciKit"),
-            (Sentiment._create_classifier(SklearnClassifier(SGDClassifier()), "sgd", training_data, testing_data),
-             "SGD classifier from SciKit"), (
-                Sentiment._create_classifier(SklearnClassifier(LinearSVC()), "linearsvc", training_data, testing_data),
+            "sgd": (
+                Sentiment._create_classifier(SklearnClassifier(SGDClassifier()), "sgd", training_data,
+                                             testing_data),
+                "SGD classifier from SciKit"),
+            "linearrsvc": (
+                Sentiment._create_classifier(SklearnClassifier(LinearSVC()), "linearsvc", training_data,
+                                             testing_data),
                 "Linear SVC classifier from SciKit"),
-            (Sentiment._create_classifier(SklearnClassifier(NuSVC()), "nusvc", training_data, testing_data),
-             "Nu SVC classifier from SciKit")]
+            "nusvc": (Sentiment._create_classifier(SklearnClassifier(NuSVC()), "nusvc", training_data,
+                                                   testing_data),
+                      "Nu SVC classifier from SciKit")
+        }
 
         # wrap the sub classifiers in a VoteClassifier
         self.voting_classifier = VoteClassifier(sub_classifiers)
         Sentiment._saveit(self.voting_classifier, "voting.pickle")
 
-    def classify_sentiment(self, text) -> Tuple[Any, float]:
+    def classify_sentiment(self, text: str, classifier: str=None) -> Tuple[Any, float]:
         """
         Classify a piece of text as positive ("pos") or negative ("neg")
         :param text: the text to classify
+        :param classifier: name of the specific sub-classifier to use (default: use a voting classifier)
         :return: pos or neg
         """
+        if classifier:
+            logger.info("Using %s sub-classifier" % classifier)
+
         if not self.voting_classifier:
             # load classifiers from disk
             logger.debug("Reading classifiers from disk...")
@@ -153,4 +181,4 @@ class Sentiment:
         # build feature set for the text being classified
         feature_set = Utils.get_feature_vector(self.word_features, text.split())
 
-        return self.voting_classifier.classify(feature_set), self.voting_classifier.confidence(feature_set)
+        return self.voting_classifier.classify(feature_set, classifier), self.voting_classifier.confidence(feature_set, classifier)

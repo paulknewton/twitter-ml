@@ -1,3 +1,5 @@
+pywaffle
+matplotlib
 PyYAML
 # matplotlib>=3.0.3
 # psutil>=5.6.1

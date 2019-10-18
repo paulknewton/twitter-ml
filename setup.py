@@ -17,7 +17,8 @@ requirements = [
     'nltk',
     'scikit-learn',
     'tweepy',
-    'PyYAML'
+    'PyYAML',
+    'PyWaffle'
 ]
 
 setup_requirements = ['pytest-runner', ]
