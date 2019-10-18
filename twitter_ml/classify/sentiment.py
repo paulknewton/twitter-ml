@@ -57,7 +57,7 @@ class VoteClassifier(ClassifierI):
         """
         if sub_classifier:
             logger.info("Using sub-classifier '%s'", sub_classifier)
-            classifier_list = { sub_classifier: self._classifiers[sub_classifier] }
+            classifier_list = {sub_classifier: self._classifiers[sub_classifier]}
         else:
             logger.info("Using VoteClassifier")
             classifier_list = self._classifiers
