@@ -7,6 +7,7 @@ import logging.config
 import yaml
 
 from twitter_ml.classify.sentiment import Sentiment
+from twitter_ml.classify.movie_reviews import MovieReviews
 
 with open("logging.yml", 'rt') as f:
     logging.config.dictConfig(yaml.safe_load(f.read()))
@@ -20,7 +21,7 @@ if __name__ == "__main__":
     classifier = Sentiment()
 
     logger.info("Loading feature sets...")
-    feature_sets = classifier.create_all_feature_sets()
+    feature_sets = MovieReviews.create_all_feature_sets()
 
     # TODO split data into 3 samples
     training_set = feature_sets[:1900]
