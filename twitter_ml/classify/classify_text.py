@@ -38,7 +38,7 @@ if __name__ == "__main__":
         for f in args.files:
             print("Processing %s" % f)
             print("---")
-            with open(f, "r") as file:
+            with open(str(f), "r") as file:
                 sentiment, confidence = classifier.classify_sentiment(file.read(), args.classifier)
                 print("%s:Classification = %s; Confidence = %f" % (f, sentiment, confidence))
                 results.append(sentiment)
