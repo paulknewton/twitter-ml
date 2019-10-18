@@ -21,10 +21,12 @@ if __name__ == "__main__":
 
     logger.info("Loading feature sets...")
     feature_sets = classifier.create_all_feature_sets()
+
+    # TODO split data into 3 samples
     training_set = feature_sets[:1900]
     testing_set = feature_sets[1900:]
 
     logger.info("Creating classifiers...")
-    classifier.retrain_classifiers(training_set, testing_set)
+    classifier.rebuild_classifiers(training_set, testing_set)
 
     logger.info("Done.")

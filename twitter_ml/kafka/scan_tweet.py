@@ -4,7 +4,7 @@ from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 
-from twitter_ml.classify.build_classifiers import classify_sentiment
+from twitter_ml.classify.train_classifiers import classify_sentiment
 
 sc = SparkContext(appName="PythonSparkStreamingKafka")
 sc.setLogLevel("WARN")

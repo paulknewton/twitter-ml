@@ -2,11 +2,9 @@
     https://pythonprogramming.net/text-classification-nltk-tutorial/"""
 
 import logging
-import os
 import pickle
-import random
 from statistics import mode
-from typing import Dict, Any, Tuple, List
+from typing import Any, Tuple, List
 
 import nltk
 from nltk.classify import ClassifierI
@@ -15,34 +13,44 @@ from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 from sklearn.svm import LinearSVC, NuSVC
 
-logger = logging.getLogger(__name__)
+from twitter_ml.classify.utils import Utils
 
-word_features = None
+logger = logging.getLogger(__name__)
 
 
 class VoteClassifier(ClassifierI):
     """Classifier based on a collection of other classifiers. Classifiers input based on the majority decisions of the sub-classifiers.
     Note: this could be replaced by the equivalent class in SciKit-Learn."""
 
-    def __init__(self, classifiers: List[Any]):
-        """Create voting classifier from a list of (classifier, description) tuples."""
+    def __init__(self, classifiers: List[Tuple[Any, str]]):
+        """
+        Create voting classifier from a list of (classifier, description) tuples.
+        :param classifiers: the list of sub-classifiers used in the voting
+        """
         self._classifiers = classifiers.copy()  # copy the list in case it is changed elsewhere
 
     def classify(self, features):
-        """Classify the features using the list of internal classifiers. Classification is calculated by majority vote."""
-        logger.debug("------------")
+        """
+        Classify the features using the list of internal classifiers. Classification is calculated by majority vote.
+        :param features: the features to classify
+        :return calculated category of the features (pos/neg)
+        """
         votes = []
         for c in self._classifiers:
             v = c[0].classify(features)
-            logger.debug("%s: %s", c[1], v)
+            logger.info("%s: %s", c[1], v)
             votes.append(v)
         majority_vote = mode(votes)
-        logger.debug("Voting Classifier: %s", majority_vote)
+        logger.info("Voting Classifier: %s", majority_vote)
 
         return majority_vote
 
     def confidence(self, features) -> float:
-        """Return the confidence of the classification (rate of +ve votes / classifiers)."""
+        """
+        Return the confidence of the classification
+        :param features: the features to classify
+        :return rate of +ve votes / classifiers
+        """
         votes = []
         for c in self._classifiers:
             v = c[0].classify(features)
@@ -75,61 +83,6 @@ class Sentiment:
             pickle.dump(classifier, classifier_f)
 
     @staticmethod
-    def find_features(word_features: List[str], document: List[str]) -> Dict[str, bool]:
-        """
-        Generate a features set for a given feature list and word list.
-        :param word_feature: the list of words that will make up the feature set
-        :param document: the text to check (as a list of words)
-        :return: a feature set for the document
-        """
-        words = set(document)
-        features = {}
-        for w in word_features:
-            features[w] = (w in words)
-
-        return features
-
-    @staticmethod
-    def create_all_feature_sets() -> List[Tuple[Dict[str, bool], Any]]:
-        """
-        Create a (feature set, category) tuple for all movie reviews in the NLTK movie review dataset
-        :return: a list of feature, category tuples
-        """
-
-        # get the moview reviews
-        if "NLTK_PROXY" in os.environ:
-            logger.debug("Using proxy %s", os.environ["NLTK_PROXY"])
-            nltk.set_proxy(os.environ["NLTK_PROXY"])
-        nltk.download('movie_reviews')
-        from nltk.corpus import movie_reviews
-
-        logger.debug("Building data set...")
-
-        # build list of words (1 list per doc) and pos/neg category
-        documents = [(list(movie_reviews.words(fileid)), category)
-                     for category in movie_reviews.categories()
-                     for fileid in movie_reviews.fileids(category)]
-        random.shuffle(documents)
-
-        # extract the most common words to use for building features
-        all_words = []
-        for w in movie_reviews.words():
-            all_words.append(w.lower())
-        all_words_dist = nltk.FreqDist(all_words)
-        # logger.debug("Frequency dist of 15 most common words:%s", all_words_dist.most_common(15))
-        # logger.debug("Frequency of 'stupid':%d", all_words_dist["stupid"])
-        features = list(all_words_dist.keys())[:3000]
-
-        # save the words used in the feature list (used when classifying)
-        feature_fn = "models/features.pickle"
-        logger.debug("Saving feature list to %s...", feature_fn)
-        with open(feature_fn, "wb") as features_f:
-            pickle.dump(features, features_f)
-
-        # build list of feature, category profiles for each review in the movie DB
-        return [(Sentiment.find_features(features, review), category) for (review, category) in documents]
-
-    @staticmethod
     def _create_classifier(c, desc: str, training_data, testing_data) -> None:
         """
         Create a classifier of a specific type, train the classifier, evaluate the accuracy then save it to a .pickle file.
@@ -145,7 +98,7 @@ class Sentiment:
 
         return trained_c
 
-    def retrain_classifiers(self, training_data, testing_data) -> None:
+    def rebuild_classifiers(self, training_data, testing_data) -> None:
         """
         Create a VoteClassifier from a collection of sub-classifiers and train/test them with the provided data.
         :param training_data: the data to use when training the classifier
@@ -195,9 +148,9 @@ class Sentiment:
             logger.debug("Reading features from disk...")
             with open("models/features.pickle", "rb") as features_f:
                 self.word_features = pickle.load(features_f)
-                logging.debug(word_features)
+                logging.debug(self.word_features)
 
         # build feature set for the text being classified
-        feature_set = Sentiment.find_features(self.word_features, text.split())
+        feature_set = Utils.get_feature_vector(self.word_features, text.split())
 
         return self.voting_classifier.classify(feature_set), self.voting_classifier.confidence(feature_set)
