@@ -27,7 +27,11 @@ class VoteClassifier(ClassifierI):
         """
         self._classifiers = classifiers.copy()  # copy the list in case it is changed elsewhere
 
-    def classify(self, features, sub_classifier: str=None):
+    @property
+    def sub_classifiers(self):
+        return self._classifiers
+
+    def classify(self, features, sub_classifier: str = None):
         """
         Classify the features using the list of internal classifiers. Classification is calculated by majority vote.
         :param features: the features to classify
@@ -35,11 +39,11 @@ class VoteClassifier(ClassifierI):
         :return calculated category of the features (pos/neg)
         """
         if sub_classifier:
-            logger.info("Using sub-classifier '%s'", sub_classifier)
-            classifier_list = {sub_classifier: self._classifiers[sub_classifier]}
+            logger.info("Classifying with '%s'", sub_classifier)
+            classifier_list = {sub_classifier: self.sub_classifiers[sub_classifier]}
         else:
-            logger.info("Using VoteClassifier")
-            classifier_list = self._classifiers
+            logger.info("Classifying with 'VoteClassifier'")
+            classifier_list = self.sub_classifiers
 
         votes = []
         for label, c in classifier_list.items():
@@ -49,21 +53,22 @@ class VoteClassifier(ClassifierI):
         majority_vote = mode(votes)
         return majority_vote
 
-    def confidence(self, features, sub_classifier: str=None) -> float:
+    def confidence(self, features, sub_classifier: str = None) -> float:
         """
         Return the confidence of the classification
+        :param sub_classifier: optional label indicating the sub-classifier to use (default: use the VoteClassifier)
         :param features: the features to classify
         :return rate of +ve votes / classifiers
         """
         if sub_classifier:
-            logger.info("Using sub-classifier '%s'", sub_classifier)
-            classifier_list = {sub_classifier: self._classifiers[sub_classifier]}
+            logger.info("Calculating confidence with '%s'", sub_classifier)
+            classifier_list = {sub_classifier: self.sub_classifiers[sub_classifier]}
         else:
-            logger.info("Using VoteClassifier")
-            classifier_list = self._classifiers
+            logger.info("Calculating confidence with 'VoteClassifier'")
+            classifier_list = self.sub_classifiers
 
         votes = []
-        for _label, c in classifier_list.items():
+        for label, c in classifier_list.items():
             v = c[0].classify(features)
             votes.append(v)
 
@@ -78,8 +83,21 @@ class VoteClassifier(ClassifierI):
 class Sentiment:
 
     def __init__(self):
-        self.voting_classifier = None
+        self._voting_classifier = None
         self.word_features = None
+
+    @property
+    def sub_classifiers(self):
+        return self.voting_classifier.sub_classifiers
+
+    @property
+    def voting_classifier(self):
+        if not self._voting_classifier:
+            # load classifiers from disk
+            logger.debug("Reading classifiers from disk...")
+            with open("models/voting.pickle", "rb") as classifier_f:
+                self._voting_classifier = pickle.load(classifier_f)
+        return self._voting_classifier
 
     @staticmethod
     def _saveit(classifier, filename: str) -> None:
@@ -153,22 +171,16 @@ class Sentiment:
         }
 
         # wrap the sub classifiers in a VoteClassifier
-        self.voting_classifier = VoteClassifier(sub_classifiers)
-        Sentiment._saveit(self.voting_classifier, "voting.pickle")
+        self._voting_classifier = VoteClassifier(sub_classifiers)
+        Sentiment._saveit(self._voting_classifier, "voting.pickle")
 
-    def classify_sentiment(self, text: str, sub_classifier: str=None) -> Tuple[Any, float]:
+    def classify_sentiment(self, text: str, sub_classifier: str = None) -> Tuple[Any, float]:
         """
         Classify a piece of text as positive ("pos") or negative ("neg")
         :param text: the text to classify
         :param sub_classifier: name of the specific sub-classifier to use (default: use a voting classifier)
         :return: pos or neg
         """
-        if not self.voting_classifier:
-            # load classifiers from disk
-            logger.debug("Reading classifiers from disk...")
-            with open("models/voting.pickle", "rb") as classifier_f:
-                self.voting_classifier = pickle.load(classifier_f)
-
         if not self.word_features:
             # load features used by the classifiers (are created during training)
             logger.debug("Reading features from disk...")
@@ -179,4 +191,8 @@ class Sentiment:
         # build feature set for the text being classified
         feature_set = Utils.get_feature_vector(self.word_features, text.split())
 
-        return self.voting_classifier.classify(feature_set, sub_classifier), self.voting_classifier.confidence(feature_set, sub_classifier)
+        vc = self.voting_classifier
+
+        return vc.classify(feature_set, sub_classifier), vc.confidence(
+            feature_set, sub_classifier)
+

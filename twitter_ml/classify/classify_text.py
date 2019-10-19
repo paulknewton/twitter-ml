@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 """
 Classify a text as +ve or -ve using classifiers.
 """
@@ -23,10 +24,18 @@ if __name__ == "__main__":
     parser.add_argument("--files", nargs="+", help="files to classify")
     parser.add_argument("--classifier", help="name of the specific classifier to use (default: a voting classifier")
     parser.add_argument("--waffle", action="store_true", default=False, help="create a waffle picture of the results")
+    parser.add_argument("--list", action="store_true", default=False, help="list the individual sub-classifers")
     args = parser.parse_args()
 
     classifier = Sentiment()
     results = []
+
+    print("Available classifiers:")
+    if args.list:
+        for label, c in classifier.sub_classifiers.items():
+            print("- %s: %s" % (label, c[1]))
+
+        sys.exit(0)
 
     if args.text:
         for t in args.text:
