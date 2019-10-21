@@ -55,10 +55,18 @@ if __name__ == "__main__":
             print("Processing %s" % url)
             print("---")
 
+            # URLs via http/https
             if url.lower().startswith("http") or url.lower().startswith("https"):
                 with requests.get(url) as resp:
-                    # TODO extract text and drop javascript
-                    text = BeautifulSoup(resp.text, features="html.parser").text
+                    soup = BeautifulSoup(resp.text, features="html.parser")
+
+                    # kill all script and style elements
+                    for script in soup(["script", "style"]):
+                        script.extract()  # rip it out
+
+                    # get text
+                    text = soup.get_text()
+            # files
             else:
                 with open(str(url), "rb") as file:  # read as bytes in case there are any unusual chars
                     text = file.read().decode(errors="ignore")  # ignore chars that cannot be converted to UTF
@@ -90,7 +98,12 @@ if __name__ == "__main__":
 
     if args.wordcloud:
         logger.debug(all_words)
-        wordcloud = WordCloud(stopwords={}).generate(all_words)
+
+        # choose the stop words here
+        stopwords=None
+        #stopwords={}
+
+        wordcloud = WordCloud(stopwords=stopwords).generate(all_words)
         plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis("off")
         plt.show()
