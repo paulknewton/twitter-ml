@@ -26,6 +26,9 @@ A standalone program for classifying the sentiment of text using NLTK.
                             name of the specific classifier to use (default: a
                             voting classifier
       --waffle              create a waffle picture of the results
+      --wordcloud           create a wordcloud of the text
+      --list                list the individual sub-classifers
+
 
 for example:
 
@@ -51,6 +54,17 @@ or:
 will generate a waffle diagram summarising the results (in this case 25% negative, 75% positive).
 
 .. figure:: sample_waffle.png
+
+or:
+
+.. code-block:: console
+
+    $ python twitter_ml/classify/classify_text.py --wordcloud --files tests/sample-text.txt
+
+will classify the input files then generate a wordcloud summarising the most frequent words.
+
+.. figure:: wordcloud.png
+
 
 Document Scanner
 ----------------

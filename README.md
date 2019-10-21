@@ -15,6 +15,8 @@ Project to analyse text streams (tweets or docs) using big data and machine lear
 
 ![waffle](sample_waffle.png)
 
+![wordcloud](wordcloud.png)
+
 ## Features
 * Text Classify - a standalone program for classifying the sentiment of text using NLTK
 * Document Scanner - a program for classifying text documents on the Spark platform

@@ -19,7 +19,9 @@ requirements = [
     'tweepy',
     'PyYAML',
     'PyWaffle',
-    'pyspark'
+    'pyspark',
+    'pillow',
+    'wordcloud'
 ]
 
 setup_requirements = ['pytest-runner', ]
