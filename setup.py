@@ -21,7 +21,8 @@ requirements = [
     'PyWaffle',
     'pyspark',
     'pillow',
-    'wordcloud'
+    'wordcloud',
+    'beautifulsoup4'
 ]
 
 setup_requirements = ['pytest-runner', ]

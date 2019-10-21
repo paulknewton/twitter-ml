@@ -8,11 +8,13 @@ import sys
 from collections import Counter
 
 import matplotlib.pyplot as plt
+import requests
 import yaml
+from bs4 import BeautifulSoup
 from pywaffle import Waffle
+from wordcloud import WordCloud
 
 from twitter_ml.classify.sentiment import Sentiment
-from wordcloud import WordCloud
 
 with open("logging.yml", 'rt') as f:
     logging.config.dictConfig(yaml.safe_load(f.read()))
@@ -32,7 +34,6 @@ if __name__ == "__main__":
     classifier = Sentiment()
     results = []
 
-
     if args.list:
         print("Available classifiers:")
         for label, c in classifier.sub_classifiers.items():
@@ -50,18 +51,25 @@ if __name__ == "__main__":
 
     elif args.files:
         all_words = ""
-        for f in args.files:
-            print("Processing %s" % f)
+        for url in args.files:
+            print("Processing %s" % url)
             print("---")
-            with open(str(f), "rb") as file:    # read as bytes in case there are any unusual chars
-                text = file.read().decode(errors="ignore")  # ignore chars that cannot be converted to UTF
 
-                if args.wordcloud:
-                    all_words += text   # store the text for a wordcloud later
+            if url.lower().startswith("http") or url.lower().startswith("https"):
+                with requests.get(url) as resp:
+                    # TODO extract text and drop javascript
+                    text = BeautifulSoup(resp.text, features="html.parser").text
+            else:
+                with open(str(url), "rb") as file:  # read as bytes in case there are any unusual chars
+                    text = file.read().decode(errors="ignore")  # ignore chars that cannot be converted to UTF
 
-                sentiment, confidence = classifier.classify_sentiment(text, args.classifier)
-                print("%s:Classification = %s; Confidence = %f" % (f, sentiment, confidence))
-                results.append(sentiment)
+            logger.info(text)
+            if args.wordcloud:
+                all_words += text  # store the text for a wordcloud later
+
+            sentiment, confidence = classifier.classify_sentiment(text, args.classifier)
+            print("%s:Classification = %s; Confidence = %f" % (url, sentiment, confidence))
+            results.append(sentiment)
 
     else:
         print("Nothing to do. Exiting.")
