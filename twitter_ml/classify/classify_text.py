@@ -8,8 +8,10 @@ import sys
 from collections import Counter
 
 import matplotlib.pyplot as plt
+import numpy as np
 import requests
 import yaml
+from PIL import Image
 from bs4 import BeautifulSoup
 from pywaffle import Waffle
 from wordcloud import WordCloud
@@ -97,13 +99,14 @@ if __name__ == "__main__":
         plt.show()
 
     if args.wordcloud:
+        mask = np.array(Image.open("wordcloud_mask.png"))
         logger.debug(all_words)
 
         # choose the stop words here
-        stopwords=None
-        #stopwords={}
+        stopwords = None
+        # stopwords={}
 
-        wordcloud = WordCloud(stopwords=stopwords).generate(all_words)
+        wordcloud = WordCloud(stopwords=stopwords, mask=mask).generate(all_words)
         plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis("off")
         plt.show()
