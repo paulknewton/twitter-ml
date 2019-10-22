@@ -106,7 +106,7 @@ if __name__ == "__main__":
         stopwords = None
         # stopwords={}
 
-        wordcloud = WordCloud(stopwords=stopwords, mask=mask).generate(all_words)
+        wordcloud = WordCloud(background_color="white", stopwords=stopwords, contour_width=3, contour_color="firebrick", mask=mask).generate(all_words)
         plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis("off")
         plt.show()
