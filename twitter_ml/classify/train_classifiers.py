@@ -9,7 +9,7 @@ import yaml
 from twitter_ml.classify.sentiment import Sentiment
 from twitter_ml.classify.movie_reviews import MovieReviews
 
-with open("logging.yml", 'rt') as f:
+with open("logging.yaml", 'rt') as f:
     logging.config.dictConfig(yaml.safe_load(f.read()))
 
 logger = logging.getLogger(__name__)

@@ -11,7 +11,7 @@ from twitter_ml.utils.config import Config
 
 publish_topic = "brexit"  # topic used to publish
 
-with open("logging.yml", 'rt') as f:
+with open("logging.yaml", 'rt') as f:
     logging.config.dictConfig(yaml.safe_load(f.read()))
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ if __name__ == "__main__":
                         help='topic to extract from Twitter')
     args = parser.parse_args()
 
-    config = Config("twitter.yml")
+    config = Config("twitter.yaml")
 
     # read twitter setup
     twitter_config = config.get_config_value("twitter", config.root)

@@ -18,7 +18,7 @@ from wordcloud import WordCloud
 
 from twitter_ml.classify.sentiment import Sentiment
 
-with open("logging.yml", 'rt') as f:
+with open("logging.yaml", 'rt') as f:
     logging.config.dictConfig(yaml.safe_load(f.read()))
 
 logger = logging.getLogger(__name__)
