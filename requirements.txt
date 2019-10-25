@@ -2,7 +2,7 @@ pyspark
 pywaffle
 matplotlib
 PyYAML
-pillow
+pillow==6.2.1
 wordcloud
 beautifulsoup4
 # matplotlib>=3.0.3
