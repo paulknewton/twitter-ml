@@ -1,5 +1,5 @@
 pyspark
-pywaffle
+pywaffle==0.4.1
 matplotlib
 PyYAML
 pillow
