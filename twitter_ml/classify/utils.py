@@ -6,7 +6,7 @@ import numpy as np
 
 class Utils:
     @staticmethod
-    def encode_features(word_features: List[str], document: List[str]) -> List[int]: # FIXME list or array?
+    def encode_features(word_features: List[str], document: List[str]) -> np.array: # FIXME list or array?
         """
         Generate a features set for a given feature list and word list.
         :param word_features: the list of words that will make up the feature set

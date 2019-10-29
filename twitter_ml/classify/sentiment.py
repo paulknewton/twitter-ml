@@ -27,7 +27,7 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
             raise ValueError("Majority voting classifier needs an odd number of classifiers")
 
         self._raw_classifiers = classifiers.copy()  # copy the list in case it is changed elsewhere
-        self._fitted_classifiers: Dict[str, Tuple[Any, str]] = {}
+        self._fitted_classifiers: Dict[str, Any] = {}
 
     @property
     def sub_classifiers(self):
@@ -139,19 +139,14 @@ class Sentiment:
             #                              testing_data),
             # "Naive Bayes classifier from NLTK"),
             "multinomilnb": (MultinomialNB(),
-                             "multinomialnb",
                              "Multinomial NB classifier from SciKit"),
             "bernouillinb": (BernoulliNB(),
-                             "bernouillinb",
                              "Bernouilli NB classifier from SciKit"),
             "logisticregression": (LogisticRegression(),
-                                   "logisticregression",
                                    "Logistic Regression classifier from SciKit"),
             "sgd": (SGDClassifier(),
-                    "sgd",
                     "SGD classifier from SciKit"),
             "linearrsvc": (LinearSVC(),
-                           "linearsvc",
                            "Linear SVC classifier from SciKit")
             # ,
             # "nusvc": (NuSVC(), "nusvc",
