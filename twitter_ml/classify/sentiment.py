@@ -47,7 +47,7 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
         return self
 
     # TODO change signature
-    def predict(self, X) -> List[Any]:
+    def predict(self, X) -> List[int]:
         """
         Classify the features using the list of internal classifiers. Classification is calculated by majority vote.
         :param X: the features to classify
@@ -158,7 +158,7 @@ class Sentiment:
         Sentiment._saveit(self._voting_classifier, "voting.pickle")
 
 
-    def classify_sentiment(self, text: str, sub_classifier: str = None) -> Any:
+    def classify_sentiment(self, text: str, sub_classifier: str = None) -> int:
         """
         Classify a piece of text as positive ("pos") or negative ("neg")
         :param text: the text to classify
