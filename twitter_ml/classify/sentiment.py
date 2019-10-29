@@ -1,14 +1,11 @@
-"""Based on the excellent NLTK tutorial at https://pythonprogramming.net/text-classification-nltk-tutorial/"""
 import logging
 import pickle
 from statistics import mode
-from typing import Any, Tuple, Dict
+from typing import Any, Tuple, Dict, List
 
-import nltk
-from nltk.classify import ClassifierI
-from nltk.classify.scikitlearn import SklearnClassifier
+from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.linear_model import LogisticRegression, SGDClassifier
-from sklearn.naive_bayes import MultinomialNB, BernoulliNB
+from sklearn.naive_bayes import BernoulliNB, MultinomialNB
 from sklearn.svm import LinearSVC, NuSVC
 
 from twitter_ml.classify.utils import Utils
@@ -16,7 +13,7 @@ from twitter_ml.classify.utils import Utils
 logger = logging.getLogger(__name__)
 
 
-class VoteClassifier(ClassifierI):
+class VoteClassifier(BaseEstimator, ClassifierMixin):
     """Classifier based on a collection of other classifiers. Classifiers input based on the majority decisions of the sub-classifiers.
     Note: this could be replaced by the equivalent class in SciKit-Learn."""
 
@@ -25,33 +22,52 @@ class VoteClassifier(ClassifierI):
         Create voting classifier from a list of (classifier, description) tuples.
         :param classifiers: the list of sub-classifiers used in the voting
         """
-        self._classifiers = classifiers.copy()  # copy the list in case it is changed elsewhere
+
+        if len(classifiers) % 2 == 0:
+            raise ValueError("Majority voting classifier needs an odd number of classifiers")
+
+        self._raw_classifiers = classifiers.copy()  # copy the list in case it is changed elsewhere
+        self._fitted_classifiers: Dict[str, Tuple[Any, str]] = {}
 
     @property
     def sub_classifiers(self):
-        return self._classifiers
+        return self._raw_classifiers
 
-    def classify(self, features, sub_classifier: str = None):
+    def fit(self, X, y: List[str]):
+        # drop any old fitted classifiers
+        self._fitted_classifiers = {}
+
+        for label, c in self._raw_classifiers.items():
+            logger.debug("Training classifiers...")
+            self._fitted_classifiers[label] = c[0].fit(X, y)
+            # logger.debug("%s %% accuracy: %f", desc, nltk.classify.accuracy(trained_c, testing_data) * 100)
+            # Sentiment._saveit(trained_c, desc + ".pickle")
+
+        # allow chaining
+        return self
+
+    # TODO change signature
+    def predict(self, X) -> List[Any]:
         """
         Classify the features using the list of internal classifiers. Classification is calculated by majority vote.
-        :param features: the features to classify
-        :param sub_classifier: the name of the sub-classifier to use (default: use all classifiers and take a vote
+        :param X: the features to classify
         :return calculated category of the features (pos/neg)
         """
-        if sub_classifier:
-            logger.info("Classifying with '%s'", sub_classifier)
-            classifier_list = {sub_classifier: self.sub_classifiers[sub_classifier]}
-        else:
-            logger.info("Classifying with 'VoteClassifier'")
-            classifier_list = self.sub_classifiers
+        logger.info("Classifying with 'VoteClassifier'")
+        classifier_list = self._fitted_classifiers
 
-        votes = []
-        for label, c in classifier_list.items():
-            v = c[0].classify(features)
-            logger.info("%s: %s: %s", label, c[1], v)
-            votes.append(v)
-        majority_vote = mode(votes)
-        return majority_vote
+        predictions = []    # predict multiple samples at once
+
+        for sample in X:
+            votes = []
+            for label, c in classifier_list.items():
+                v = c.predict(X)[0]
+                logger.info("%s: %s", label, v)
+                votes.append(v)
+            majority_vote = mode(votes)
+            predictions.append(majority_vote)
+
+        return predictions
 
     def confidence(self, features, sub_classifier: str = None) -> float:
         """
@@ -60,6 +76,7 @@ class VoteClassifier(ClassifierI):
         :param features: the features to classify
         :return rate of +ve votes / classifiers
         """
+        raise NotImplementedError()
         if sub_classifier:
             logger.info("Calculating confidence with '%s'", sub_classifier)
             classifier_list = {sub_classifier: self.sub_classifiers[sub_classifier]}
@@ -69,15 +86,12 @@ class VoteClassifier(ClassifierI):
 
         votes = []
         for label, c in classifier_list.items():
-            v = c[0].classify(features)
+            v = c[0].predict(features)
             votes.append(v)
 
         choice_votes = votes.count(mode(votes))
         conf = choice_votes / len(votes)
         return conf
-
-    def labels(self):
-        return ["pos", "neg"]
 
 
 class Sentiment:
@@ -111,70 +125,45 @@ class Sentiment:
         with open(filename, "wb") as classifier_f:
             pickle.dump(classifier, classifier_f)
 
-    @staticmethod
-    def _create_classifier(c, desc: str, training_data, testing_data) -> None:
-        """
-        Create a classifier of a specific type, train the classifier, evaluate the accuracy then save it to a .pickle file.
-        :param c: class of the classifier
-        :param desc: label to identify the classifier
-        :param training_data: data to use when training the classifier
-        :param testing_data: data to use to evaluate the classifier
-        """
-        logger.debug("Training %s", desc)
-        trained_c = c.train(training_data)
-        logger.debug("%s %% accuracy: %f", desc, nltk.classify.accuracy(trained_c, testing_data) * 100)
-        Sentiment._saveit(trained_c, desc + ".pickle")
-
-        return trained_c
-
-    def rebuild_classifiers(self, training_data, testing_data) -> None:
+    def init_classifiers(self, X_train, X_test, y_train, y_test) -> None:
         """
         Create a VoteClassifier from a collection of sub-classifiers and train/test them with the provided data.
-        :param training_data: the data to use when training the classifier
-        :param testing_data: the data to use to evaluate the classifier
+        :param X_train: the data to use when training the classifier
+        :param X_test: the data to use to evaluate the classifier
         """
-        logger.debug("Training classifiers...")
 
         # create the sub classifiers, and save this to disk in case we need them later
         sub_classifiers = {
-            "naivebayes": (
-                Sentiment._create_classifier(nltk.NaiveBayesClassifier, "naivebayes", training_data,
-                                             testing_data),
-                "Naive Bayes classifier from NLTK"),
-            "multinomilnb": (
-                Sentiment._create_classifier(SklearnClassifier(MultinomialNB()), "multinomialnb",
-                                             training_data,
-                                             testing_data),
-                "Multinomial NB classifier from SciKit"),
-            "bernouillinb": (
-                Sentiment._create_classifier(SklearnClassifier(BernoulliNB()), "bernouillinb",
-                                             training_data,
-                                             testing_data),
-                "Bernouilli NB classifier from SciKit"),
-            "logisticregression": (
-                Sentiment._create_classifier(SklearnClassifier(LogisticRegression()),
-                                             "logisticregression",
-                                             training_data,
-                                             testing_data),
-                "Logistic Regression classifier from SciKit"),
-            "sgd": (
-                Sentiment._create_classifier(SklearnClassifier(SGDClassifier()), "sgd", training_data,
-                                             testing_data),
-                "SGD classifier from SciKit"),
-            "linearrsvc": (
-                Sentiment._create_classifier(SklearnClassifier(LinearSVC()), "linearsvc", training_data,
-                                             testing_data),
-                "Linear SVC classifier from SciKit"),
-            "nusvc": (Sentiment._create_classifier(SklearnClassifier(NuSVC()), "nusvc", training_data,
-                                                   testing_data),
-                      "Nu SVC classifier from SciKit")
+            # "naivebayes": (
+            # Sentiment._create_classifier(nltk.NaiveBayesClassifier, "naivebayes", training_data,
+            #                              testing_data),
+            # "Naive Bayes classifier from NLTK"),
+            "multinomilnb": (MultinomialNB(),
+                             "multinomialnb",
+                             "Multinomial NB classifier from SciKit"),
+            "bernouillinb": (BernoulliNB(),
+                             "bernouillinb",
+                             "Bernouilli NB classifier from SciKit"),
+            "logisticregression": (LogisticRegression(),
+                                   "logisticregression",
+                                   "Logistic Regression classifier from SciKit"),
+            "sgd": (SGDClassifier(),
+                    "sgd",
+                    "SGD classifier from SciKit"),
+            "linearrsvc": (LinearSVC(),
+                           "linearsvc",
+                           "Linear SVC classifier from SciKit")
+            # ,
+            # "nusvc": (NuSVC(), "nusvc",
+            #           "Nu SVC classifier from SciKit")
         }
 
         # wrap the sub classifiers in a VoteClassifier
-        self._voting_classifier = VoteClassifier(sub_classifiers)
+        self._voting_classifier = VoteClassifier(sub_classifiers).fit(X_train, y_train)
         Sentiment._saveit(self._voting_classifier, "voting.pickle")
 
-    def classify_sentiment(self, text: str, sub_classifier: str = None) -> Tuple[Any, float]:
+
+    def classify_sentiment(self, text: str, sub_classifier: str = None) -> Any:
         """
         Classify a piece of text as positive ("pos") or negative ("neg")
         :param text: the text to classify
@@ -189,10 +178,13 @@ class Sentiment:
                 logging.debug(self.word_features)
 
         # build feature set for the text being classified
-        feature_set = Utils.get_feature_vector(self.word_features, text.split())
+        feature_set = Utils.encode_features(self.word_features, text.split()).reshape(1, -1)
 
-        vc = self.voting_classifier
+        if sub_classifier:
+            logger.debug("Using sub-classifier: %s", sub_classifier)
+            c = self.voting_classifier.sub_classifiers[sub_classifier]
+        else:
+            logger.debug("Using vote classifier")
+            c = self.voting_classifier
 
-        return vc.classify(feature_set, sub_classifier), vc.confidence(
-            feature_set, sub_classifier)
-
+        return c.predict(feature_set)[0]

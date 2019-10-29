@@ -33,21 +33,21 @@ if __name__ == "__main__":
     parser.add_argument("--list", action="store_true", default=False, help="list the individual sub-classifers")
     args = parser.parse_args()
 
-    classifier = Sentiment()
+    sentiment = Sentiment()
     results = []
 
     if args.list:
         print("Available classifiers:")
-        for label, c in classifier.sub_classifiers.items():
+        for label, c in sentiment.sub_classifiers.items():
             print("- %s: %s" % (label, c[1]))
 
         sys.exit(0)
 
     if args.text:
         for t in args.text:
-            sentiment, confidence = classifier.classify_sentiment(t, args.classifier)
-            print("Classification: %s; Confidence: %f" % (sentiment, confidence))
-            results.append(sentiment)
+            category = sentiment.classify_sentiment(t, args.classifier)
+            print("Classification: %s" % category)
+            results.append(category)
         if args.wordcloud:
             all_words = " ".join(args.text)
 
@@ -77,9 +77,9 @@ if __name__ == "__main__":
             if args.wordcloud:
                 all_words += text  # store the text for a wordcloud later
 
-            sentiment, confidence = classifier.classify_sentiment(text, args.classifier)
-            print("%s:Classification = %s; Confidence = %f" % (url, sentiment, confidence))
-            results.append(sentiment)
+            category = sentiment.classify_sentiment(text, args.classifier)
+            print("%s:Classification = %s" % (url, category))
+            results.append(category)
 
     else:
         print("Nothing to do. Exiting.")

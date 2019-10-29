@@ -23,3 +23,4 @@ kafka-python>=1.4.6
 nltk>=3.4.5
 scikit-learn>=0.20.3
 tweepy>=3.7.0
+tqdm==4.36.1
