@@ -15,7 +15,7 @@ def test_basic_classification():
 
     classifier = Sentiment()
     for text, expected_classification in test_data.items():
-        sentiment = classifier.classify_sentiment(text)
+        _, _, sentiment = classifier.classify_sentiment(text)
         print("%s\nClassification: %s" % (text, sentiment))
         assert sentiment == expected_classification
 
@@ -30,6 +30,6 @@ def test_classify_json():
 
     classifier = Sentiment()
     for text, expected_classification in test_data.items():
-        sentiment = classifier.classify_sentiment(text)
+        _, _, sentiment = classifier.classify_sentiment(text)
         print("%s\nClassification: %s" % (text, sentiment))
         assert sentiment == expected_classification

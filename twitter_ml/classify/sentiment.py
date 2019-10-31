@@ -2,6 +2,7 @@ import logging
 import pickle
 from statistics import mode
 from typing import Any, Tuple, Dict, List
+import numpy as np
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.linear_model import LogisticRegression, SGDClassifier
@@ -98,7 +99,7 @@ class Sentiment:
 
     def __init__(self):
         self._voting_classifier = None
-        self.word_features = None
+        self.feature_list = None
 
     @property
     def sub_classifiers(self):
@@ -158,28 +159,27 @@ class Sentiment:
         Sentiment._saveit(self._voting_classifier, "voting.pickle")
 
 
-    def classify_sentiment(self, text: str, sub_classifier: str = None) -> int:
+    def classify_sentiment(self, text: str, sub_classifier: str = None) -> Tuple[np.array, np.array, int]:
         """
         Classify a piece of text as positive ("pos") or negative ("neg")
         :param text: the text to classify
         :param sub_classifier: name of the specific sub-classifier to use (default: use a voting classifier)
-        :return: pos or neg
+        :return: tuple of (feature_list, feature_encoding, category)
         """
-        if not self.word_features:
+        if not self.feature_list:
             # load features used by the classifiers (are created during training)
             logger.debug("Reading features from disk...")
             with open("models/features.pickle", "rb") as features_f:
-                self.word_features = pickle.load(features_f)
-                logging.debug(self.word_features)
+                self.feature_list = pickle.load(features_f)
 
         # build feature set for the text being classified
-        feature_set = Utils.encode_features(self.word_features, text.split()).reshape(1, -1)
+        feature_encoding = Utils.encode_features(self.feature_list, text.split()).reshape(1, -1)
 
         if sub_classifier:
             logger.debug("Using sub-classifier: %s", sub_classifier)
-            c = self.voting_classifier.sub_classifiers[sub_classifier]
+            clf = self.voting_classifier.sub_classifiers[sub_classifier]
         else:
             logger.debug("Using vote classifier")
-            c = self.voting_classifier
+            clf = self.voting_classifier
 
-        return c.predict(feature_set)[0]
+        return self.feature_list, feature_encoding[0], clf.predict(feature_encoding)[0]
