@@ -1,12 +1,12 @@
-from typing import List, Dict
+from typing import List
 
-#from sklearn.preprocessing import LabelEncoder
+# from sklearn.preprocessing import LabelEncoder
 import numpy as np
 
 
 class Utils:
     @staticmethod
-    def encode_features(word_features: List[str], document: List[str]) -> np.array: # FIXME list or array?
+    def encode_features(word_features: List[str], document: List[str]) -> np.array:  # FIXME list or array?
         """
         Generate a features set for a given feature list and word list.
         :param word_features: the list of words that will make up the feature set

@@ -2,7 +2,7 @@ import logging
 import os
 import pickle
 import random
-from typing import Any, Tuple, List, Dict
+from typing import Tuple, List
 
 import nltk
 from sklearn.preprocessing import LabelEncoder
@@ -32,7 +32,7 @@ class MovieReviews:
         from nltk.corpus import movie_reviews
         self._data = movie_reviews
 
-        self._features = [] # lazy load
+        self._features = []  #  lazy load
 
     @property
     def stopwords(self) -> List[str]:

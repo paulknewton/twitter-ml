@@ -2,12 +2,12 @@ import logging
 import pickle
 from statistics import mode
 from typing import Any, Tuple, Dict, List
-import numpy as np
 
+import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.naive_bayes import BernoulliNB, MultinomialNB
-from sklearn.svm import LinearSVC, NuSVC
+from sklearn.svm import LinearSVC
 
 from twitter_ml.classify.utils import Utils
 
@@ -57,7 +57,7 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
         logger.info("Classifying with 'VoteClassifier'")
         classifier_list = self._fitted_classifiers
 
-        predictions = []    # predict multiple samples at once
+        predictions = []  # predict multiple samples at once
 
         for sample in X:
             votes = []
@@ -157,7 +157,6 @@ class Sentiment:
         # wrap the sub classifiers in a VoteClassifier
         self._voting_classifier = VoteClassifier(sub_classifiers).fit(X_train, y_train)
         Sentiment._saveit(self._voting_classifier, "voting.pickle")
-
 
     def classify_sentiment(self, text: str, sub_classifier: str = None) -> Tuple[np.array, np.array, int]:
         """
