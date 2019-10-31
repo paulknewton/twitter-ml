@@ -19,10 +19,11 @@ requirements = [
     'tweepy',
     'PyYAML',
     'PyWaffle',
-    'pyspark',
+    #'pyspark',
     'pillow',
     'wordcloud',
-    'beautifulsoup4'
+    'beautifulsoup4',
+    'tqdm'
 ]
 
 setup_requirements = ['pytest-runner', ]
