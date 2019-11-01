@@ -19,10 +19,11 @@ requirements = [
     'tweepy',
     'PyYAML',
     'PyWaffle',
-    'pyspark',
+    #'pyspark',
     'pillow',
     'wordcloud',
-    'beautifulsoup4'
+    'beautifulsoup4',
+    'tqdm'
 ]
 
 setup_requirements = ['pytest-runner', ]
@@ -47,9 +48,9 @@ setup(
     ],
     description="Python Boilerplate contains all the boilerplate you need to create a Python package.",
     entry_points={
-        'console_scripts': [
-            'twitter_ml=twitter_ml.cli:main',
-        ],
+#        'console_scripts': [
+#            'twitter_ml=twitter_ml.cli:main',
+#        ],
     },
     install_requires=requirements,
     license="GNU General Public License v3",
