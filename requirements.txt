@@ -4,7 +4,7 @@ matplotlib
 PyYAML
 pillow
 wordcloud
-beautifulsoup4
+beautifulsoup4==4.8.1
 # matplotlib>=3.0.3
 # psutil>=5.6.1
 # py4j>=0.10.7
