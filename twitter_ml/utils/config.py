@@ -1,3 +1,5 @@
+"""Classes to read YAML confguration files."""
+
 import logging
 from typing import Dict
 
@@ -9,6 +11,7 @@ logger = logging.getLogger(__name__)
 class Config:
     """
     Helper class to access configuration values from a configration file.
+
     The configuraton file must be in YAML format.
     """
 
@@ -22,7 +25,8 @@ class Config:
 
     def __init__(self, filename: str):
         """
-        Load the configuration values from a YAML fle
+        Load the configuration values from a YAML fle.
+
         :param filename: the YAML file
         :raises FileNotFoundError: if the file cannot be read
         """
@@ -40,7 +44,8 @@ class Config:
     @staticmethod
     def get_config_value(key: str, config_dict: Dict):
         """
-        Get the value of a key in the specified configuration dictionary
+        Get the value of a key in the specified configuration dictionary.
+
         :param key: the key to lookup
         :param config_dict: the dictionary to use (can be the root, or a sub-node
         :return: the value (if defined) or the default value (if defined)

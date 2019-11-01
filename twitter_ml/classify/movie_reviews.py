@@ -1,3 +1,4 @@
+"""Wrapper around the NLTK movie view databas."""
 import logging
 import os
 import pickle
@@ -16,10 +17,12 @@ logger = logging.getLogger(__name__)
 class MovieReviews:
     """
     Wrapper around the movie review data shipped with the NLTK library.
+
     Used to generate test/training data by extracting features.
     """
 
     def __init__(self):
+        """Instantiate the class and download the NLTK stopwords and review data."""
         if "NLTK_PROXY" in os.environ:
             logger.info("Using proxy %s", os.environ["NLTK_PROXY"])
             nltk.set_proxy(os.environ["NLTK_PROXY"])
@@ -36,14 +39,25 @@ class MovieReviews:
 
     @property
     def stopwords(self) -> List[str]:
+        """
+        Get the NLTK stopwords used internally when identifying features.
+
+        :return: the list of stopwords
+        """
         return self._stopwords
 
     @property
     def reviews(self):
+        """Get the moview review data."""
         return self._data
 
     @property
     def features(self) -> List[str]:
+        """
+        Get the list of features used to train the classifier.
+
+        :return: the list of feature words
+        """
         # TODO load from pickle file if available
         if self._features:
             return self._features
@@ -70,7 +84,8 @@ class MovieReviews:
 
     def get_samples(self) -> Tuple[List[int], List[int]]:
         """
-        Create a (feature set, category) tuple for all movie reviews in the NLTK movie review dataset
+        Create a (feature set, category) tuple for all movie reviews in the NLTK movie review dataset.
+
         :return: a tuple of features (matrix) and categories (vector)
         """
         logger.debug("Building data set...")

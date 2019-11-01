@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
-"""
-Classify a text as +ve or -ve using classifiers.
-"""
+"""CLI command to classify a text as +ve or -ve using classifiers."""
 import argparse
 import logging.config
 import sys
@@ -25,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def print_feature_encoding(feature_list, feature_encoding):
+    """Print the feature encoding of a sample."""
     print("Feature encoding:")
 
     # zip feature, encoding then sort or filter by encoding values

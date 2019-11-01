@@ -1,3 +1,4 @@
+"""Main classifier logic."""
 import logging
 import pickle
 from statistics import mode
@@ -15,15 +16,19 @@ logger = logging.getLogger(__name__)
 
 
 class VoteClassifier(BaseEstimator, ClassifierMixin):
-    """Classifier based on a collection of other classifiers. Classifiers input based on the majority decisions of the sub-classifiers.
-    Note: this could be replaced by the equivalent class in SciKit-Learn."""
+    """
+    Classifier based on a collection of other classifiers.
+
+    Classifiers input based on the majority decisions of the sub-classifiers.
+    Note: this could be replaced by the equivalent class in SciKit-Learn.
+    """
 
     def __init__(self, classifiers: Dict[str, Tuple[Any, str]]):
         """
         Create voting classifier from a list of (classifier, description) tuples.
+
         :param classifiers: the list of sub-classifiers used in the voting
         """
-
         if len(classifiers) % 2 == 0:
             raise ValueError("Majority voting classifier needs an odd number of classifiers")
 
@@ -32,9 +37,11 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
 
     @property
     def sub_classifiers(self):
+        """Get the internal classifiers used by the voting classifier."""
         return self._raw_classifiers
 
     def fit(self, X, y: List[str]):
+        """Fit the classifier to the test data."""
         # drop any old fitted classifiers
         self._fitted_classifiers = {}
 
@@ -50,7 +57,8 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
     # TODO change signature
     def predict(self, X) -> List[int]:
         """
-        Classify the features using the list of internal classifiers. Classification is calculated by majority vote.
+        Classify the features using the list of internal classifiers - classification is calculated by majority vote.
+
         :param X: the features to classify
         :return calculated category of the features (pos/neg)
         """
@@ -72,7 +80,8 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
 
     def confidence(self, features, sub_classifier: str = None) -> float:
         """
-        Return the confidence of the classification
+        Return the confidence of the classification.
+
         :param sub_classifier: optional label indicating the sub-classifier to use (default: use the VoteClassifier)
         :param features: the features to classify
         :return rate of +ve votes / classifiers
@@ -96,17 +105,29 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
 
 
 class Sentiment:
+    """Class to initialise classifiers and expose common classification methods."""
 
     def __init__(self):
+        """Instantiate the class with an internal majority voting classifier and feature set."""
         self._voting_classifier = None
         self.feature_list = None
 
     @property
     def sub_classifiers(self):
+        """
+        Return the internal classifiers used inside the majority voting classifier.
+
+        :return: the list of sub-classifiers
+        """
         return self.voting_classifier.sub_classifiers
 
     @property
-    def voting_classifier(self):
+    def voting_classifier(self) -> VoteClassifier:
+        """
+        Return the majority voting classifier to perform the classification.
+
+        :return: the classifier
+        """
         if not self._voting_classifier:
             # load classifiers from disk
             logger.debug("Reading classifiers from disk...")
@@ -118,6 +139,7 @@ class Sentiment:
     def _saveit(classifier, filename: str) -> None:
         """
         Save a classifier to disk.
+
         :param classifier: the classifier
         :param filename: the filename
         """
@@ -129,10 +151,10 @@ class Sentiment:
     def init_classifiers(self, X_train, X_test, y_train, y_test) -> None:
         """
         Create a VoteClassifier from a collection of sub-classifiers and train/test them with the provided data.
+
         :param X_train: the data to use when training the classifier
         :param X_test: the data to use to evaluate the classifier
         """
-
         # create the sub classifiers, and save this to disk in case we need them later
         sub_classifiers = {
             # "naivebayes": (
@@ -160,7 +182,8 @@ class Sentiment:
 
     def classify_sentiment(self, text: str, sub_classifier: str = None) -> Tuple[np.array, np.array, int]:
         """
-        Classify a piece of text as positive ("pos") or negative ("neg")
+        Classify a piece of text as positive ("pos") or negative ("neg").
+
         :param text: the text to classify
         :param sub_classifier: name of the specific sub-classifier to use (default: use a voting classifier)
         :return: tuple of (feature_list, feature_encoding, category)

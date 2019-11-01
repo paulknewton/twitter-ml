@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
-"""
-Re-create classifiers based on training data.
-"""
+"""Re-create classifiers based on training data."""
 import argparse
 import logging.config
 import sys
