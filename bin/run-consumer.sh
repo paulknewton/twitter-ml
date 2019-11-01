@@ -26,4 +26,3 @@ PY_FILES="--py-files /Users/paul/github/spark/$SRC_ZIP"
 PYSPARK_PYTHON=python spark-submit \
 $SPARK_ARGS --master local[*] $PY_FILES \
 python twitter_ml.kafka.read_tweets_from_kafka.py
-

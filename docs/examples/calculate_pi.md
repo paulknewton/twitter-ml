@@ -62,7 +62,7 @@ n = 100 * partitions
 # Assume the circle has radius 1, so co-ordinates are generated between (-1,-1) and (1,1).
 #
 # Data point is in the circle if distance from the centre < radius (i.e. <1).
-# Distance from the centre is sqrt(x2 + y2). i.e. if sqrt(x2 + y2) < 1 exp(2) 
+# Distance from the centre is sqrt(x2 + y2). i.e. if sqrt(x2 + y2) < 1 exp(2)
 def f(_):
 x = random() * 2 - 1
 y = random() * 2 - 1

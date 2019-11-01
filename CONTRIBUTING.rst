@@ -76,14 +76,20 @@ Ready to contribute? Here's how to set up `twitter_ml` for local development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the
-   tests, including testing other Python versions with tox::
+5. When you're done making changes, check that your changes adhere to the standard formatting by running `black`.
+   The changes should all pass the flake8 linter as well as all tests, including testing other Python versions with tox::
 
+    $ black
     $ flake8 twitter_ml tests
-    $ python setup.py test or pytest
+    $ python setup.py test
     $ tox
 
-   To get flake8 and tox, just pip install them into your virtualenv.
+   To get black, flake8 and tox, just pip install them into your virtualenv with pip install -r requirements_dev.txt
+
+   You can also use the Makefile to run common tasks:
+    $ make test
+    $ make test-all
+    $ make lint
 
 6. Commit your changes and push your branch to GitHub::
 

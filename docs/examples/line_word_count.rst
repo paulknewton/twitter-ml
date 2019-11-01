@@ -23,7 +23,7 @@ a line count and show the first row.
    filename = "README.md"
 
    textFile = spark.read.text(filename)
-   textFile.count() 
+   textFile.count()
    textFile.first()
 
 Now split each line into an array of words using the split function.
