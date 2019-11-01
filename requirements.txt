@@ -1,10 +1,10 @@
 pyspark
 pywaffle
 matplotlib==3.1.1
-PyYAML
-pillow
-wordcloud
-beautifulsoup4
+PyYAML==5.1.2
+pillow==6.2.1
+wordcloud==1.5.0
+beautifulsoup4==4.8.1
 # matplotlib>=3.0.3
 # psutil>=5.6.1
 # py4j>=0.10.7
@@ -23,3 +23,4 @@ kafka-python>=1.4.6
 nltk>=3.4.5
 scikit-learn>=0.20.3
 tweepy>=3.7.0
+tqdm==4.36.1
