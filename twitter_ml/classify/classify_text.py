@@ -23,6 +23,16 @@ with open("logging.yaml", 'rt') as f:
 
 logger = logging.getLogger(__name__)
 
+
+def print_feature_encoding(feature_list, feature_encoding):
+    print("Feature encoding:")
+
+    # zip feature, encoding then sort or filter by encoding values
+    # for feature, encoding in sorted(zip(feature_list, feature_encoding), key=lambda tup: tup[1]):
+    for feature, encoding in filter(lambda tup: tup[1] == 1, zip(feature_list, feature_encoding)):
+        print("%s: %s" % (feature, encoding))
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Classifies text sentiment based on scikit and NLTK models")
     parser.add_argument("--text", nargs="+", help="text to classify")
@@ -31,23 +41,28 @@ if __name__ == "__main__":
     parser.add_argument("--waffle", action="store_true", default=False, help="create a waffle picture of the results")
     parser.add_argument("--wordcloud", action="store_true", default=False, help="create a wordcloud of the text")
     parser.add_argument("--list", action="store_true", default=False, help="list the individual sub-classifers")
+    parser.add_argument("--features", action="store_true", default=False, help="list features")
     args = parser.parse_args()
 
-    classifier = Sentiment()
+    sentiment = Sentiment()
     results = []
 
     if args.list:
         print("Available classifiers:")
-        for label, c in classifier.sub_classifiers.items():
+        for label, c in sentiment.sub_classifiers.items():
             print("- %s: %s" % (label, c[1]))
 
         sys.exit(0)
 
     if args.text:
         for t in args.text:
-            sentiment, confidence = classifier.classify_sentiment(t, args.classifier)
-            print("Classification: %s; Confidence: %f" % (sentiment, confidence))
-            results.append(sentiment)
+            feature_list, feature_encoding, category = sentiment.classify_sentiment(t, args.classifier)
+
+            if args.features:
+                print_feature_encoding(feature_list, feature_encoding)
+            print("Classification: %s" % category)
+            results.append(category)
+
         if args.wordcloud:
             all_words = " ".join(args.text)
 
@@ -77,9 +92,12 @@ if __name__ == "__main__":
             if args.wordcloud:
                 all_words += text  # store the text for a wordcloud later
 
-            sentiment, confidence = classifier.classify_sentiment(text, args.classifier)
-            print("%s:Classification = %s; Confidence = %f" % (url, sentiment, confidence))
-            results.append(sentiment)
+            feature_list, feature_encoding, category = sentiment.classify_sentiment(text, args.classifier)
+
+            if args.features:
+                print_feature_encoding(feature_list, feature_encoding)
+            print("%s:Classification = %s" % (url, category))
+            results.append(category)
 
     else:
         print("Nothing to do. Exiting.")
@@ -106,7 +124,8 @@ if __name__ == "__main__":
         stopwords = None
         # stopwords={}
 
-        wordcloud = WordCloud(background_color="white", stopwords=stopwords, contour_width=3, contour_color="firebrick", mask=mask).generate(all_words)
+        wordcloud = WordCloud(background_color="white", stopwords=stopwords, contour_width=3, contour_color="firebrick",
+                              mask=mask).generate(all_words)
         plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis("off")
         plt.show()
