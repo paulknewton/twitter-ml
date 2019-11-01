@@ -9,12 +9,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import requests
 import yaml
-from PIL import Image
 from bs4 import BeautifulSoup
+from PIL import Image
 from pywaffle import Waffle
-from wordcloud import WordCloud
-
 from twitter_ml.classify.sentiment import Sentiment
+from wordcloud import WordCloud
 
 with open("logging.yaml", "rt") as f:
     logging.config.dictConfig(yaml.safe_load(f.read()))

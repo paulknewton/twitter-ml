@@ -5,9 +5,8 @@ import logging.config
 import sys
 
 import yaml
-
-from twitter_ml.classify.sentiment import Sentiment
 from twitter_ml.classify.movie_reviews import MovieReviews
+from twitter_ml.classify.sentiment import Sentiment
 
 with open("logging.yaml", "rt") as f:
     logging.config.dictConfig(yaml.safe_load(f.read()))

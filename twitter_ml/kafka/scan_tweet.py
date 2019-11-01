@@ -3,7 +3,6 @@ import json
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
-
 from twitter_ml.classify.sentiment import Sentiment
 
 sc = SparkContext(appName="PythonSparkStreamingKafka")

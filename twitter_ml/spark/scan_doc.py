@@ -12,7 +12,6 @@ import re
 
 import matplotlib.pyplot as plt
 import pandas as pd
-
 # connect to a Spark cluster
 from pyspark.sql import SparkSession
 

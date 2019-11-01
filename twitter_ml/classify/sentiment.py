@@ -2,14 +2,13 @@
 import logging
 import pickle
 from statistics import mode
-from typing import Any, Tuple, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.naive_bayes import BernoulliNB, MultinomialNB
 from sklearn.svm import LinearSVC
-
 from twitter_ml.classify.utils import Utils
 
 logger = logging.getLogger(__name__)

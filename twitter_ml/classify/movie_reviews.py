@@ -3,12 +3,11 @@ import logging
 import os
 import pickle
 import random
-from typing import Tuple, List
+from typing import List, Tuple
 
 import nltk
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
-
 from twitter_ml.classify.utils import Utils
 
 logger = logging.getLogger(__name__)

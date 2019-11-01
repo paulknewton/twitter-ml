@@ -2,11 +2,9 @@ import argparse
 import logging.config
 
 import yaml
-from kafka import SimpleProducer, KafkaClient
-from tweepy import OAuthHandler
-from tweepy import Stream
+from kafka import KafkaClient, SimpleProducer
+from tweepy import OAuthHandler, Stream
 from tweepy.streaming import StreamListener
-
 from twitter_ml.utils.config import Config
 
 publish_topic = "brexit"  # topic used to publish

@@ -21,9 +21,10 @@
 import os
 import sys
 
+import twitter_ml
+
 sys.path.insert(0, os.path.abspath(".."))
 
-import twitter_ml
 
 # -- General configuration ---------------------------------------------
 
