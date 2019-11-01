@@ -21,4 +21,4 @@ Other Stuff
 
 * The nice Matplotlib Waffle charts are implemented by the `PyWaffle <https://github.com/gyli/PyWaffle>`_ library.
 
-* The word clouds are implemented using the `PyWaffle <https://github.com/amueller/word_cloud>`_ library.
+* The word clouds are implemented using the `wordcloud <https://github.com/amueller/word_cloud>`_ library.
