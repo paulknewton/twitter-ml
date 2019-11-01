@@ -9,7 +9,9 @@ class Utils:
     """Wrapper helper class."""
 
     @staticmethod
-    def encode_features(word_features: List[str], document: List[str]) -> np.array:  # FIXME list or array?
+    def encode_features(
+        word_features: List[str], document: List[str]
+    ) -> np.array:  # FIXME list or array?
         """
         Generate a features set for a given feature list and word list.
 

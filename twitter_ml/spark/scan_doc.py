@@ -12,20 +12,25 @@ import re
 
 import matplotlib.pyplot as plt
 import pandas as pd
+
 # connect to a Spark cluster
 from pyspark.sql import SparkSession
 
 # init logging
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
-spark = SparkSession \
-    .builder \
-    .appName("Doc Scanner").master("local").config("spark.driver.host", "localhost") \
+spark = (
+    SparkSession.builder.appName("Doc Scanner")
+    .master("local")
+    .config("spark.driver.host", "localhost")
     .getOrCreate()
+)
 
 
 def flatten_text(rdd, stats):
@@ -58,18 +63,20 @@ def drop_stopwords(rdd, stats):
     words = rdd.filter(lambda x: len(x) > 1)
     stats.append(("num words with short words removed", words.count()))
 
-    logger.debug('Dropping stopwords with NLTK')
+    logger.debug("Dropping stopwords with NLTK")
 
     # drop stop words (downloads words if needed)
     # If you are behind a proxy, set NLTK_PROXY in your environment
     import nltk
     import os
-    if 'NLTK_PROXY' in os.environ:
-        logger.debug('Using proxy %s', os.environ['NLTK_PROXY'])
-        nltk.set_proxy(os.environ['NLTK_PROXY'])
+
+    if "NLTK_PROXY" in os.environ:
+        logger.debug("Using proxy %s", os.environ["NLTK_PROXY"])
+        nltk.set_proxy(os.environ["NLTK_PROXY"])
     nltk.download("stopwords")
     from nltk.corpus import stopwords
-    stopwords = stopwords.words('english')
+
+    stopwords = stopwords.words("english")
     words = words.filter(lambda x: x not in stopwords)
     stats.append(("num words without stop words", words.count()))
 
@@ -100,7 +107,12 @@ def print_stats(stats):
 
 
 def plot_stats(stats):
-    df = pd.DataFrame.from_dict({"statistic": [stat[0] for stat in stats], "summary": [stat[1] for stat in stats]})
+    df = pd.DataFrame.from_dict(
+        {
+            "statistic": [stat[0] for stat in stats],
+            "summary": [stat[1] for stat in stats],
+        }
+    )
     df.set_index("statistic", inplace=True)
     df.plot(kind="barh", grid=True)
     plt.tight_layout()
@@ -113,7 +125,7 @@ def plot_word_freq(rdd):
     # plot some graphs
     words_to_plot = rdd.takeOrdered(80, key=lambda x: -x[1])
 
-    logger.debug('Preparing data...')
+    logger.debug("Preparing data...")
     words_word = [x[0] for x in words_to_plot]
     words_count = [x[1] for x in words_to_plot]
     words_dict = {"word": words_word, "frequency": words_count}
@@ -121,29 +133,47 @@ def plot_word_freq(rdd):
     # convert to pandas DF and plot
     df_words = pd.DataFrame(words_dict)
 
-    logger.debug('Preparing plot...')
-    word_plot = df_words.plot(figsize=(20, 50), x="word", y="frequency", kind="barh", legend=False, grid=True)
+    logger.debug("Preparing plot...")
+    word_plot = df_words.plot(
+        figsize=(20, 50), x="word", y="frequency", kind="barh", legend=False, grid=True
+    )
     word_plot.invert_yaxis()
     plt.title("Word Frequency", fontsize=20)
     plt.xticks(size=8)
     plt.yticks(size=8)
     plt.ylabel("")
 
-    plt.savefig('fig_word_freq.png')
+    plt.savefig("fig_word_freq.png")
     plt.show()
 
 
 if __name__ == "__main__":
 
     # read command-line args
-    parser = argparse.ArgumentParser(description='Spark program to process text files and analyse contents')
-    parser.add_argument('-v', dest='verbose', action='store_true', default=False, help='verbose logging')
-    parser.add_argument('file', help='file to process')
-    parser.add_argument('--stopwords', dest='drop_stopwords', action='store_true', default=False,
-                        help='strip stopwords')
-    parser.add_argument('--plot', dest='plot', action='store_true', default=False, help='plot figure')
-    parser.add_argument('--sentiment', dest='sentiment', action='store_true', default=False,
-                        help='activate sentiment analysis')
+    parser = argparse.ArgumentParser(
+        description="Spark program to process text files and analyse contents"
+    )
+    parser.add_argument(
+        "-v", dest="verbose", action="store_true", default=False, help="verbose logging"
+    )
+    parser.add_argument("file", help="file to process")
+    parser.add_argument(
+        "--stopwords",
+        dest="drop_stopwords",
+        action="store_true",
+        default=False,
+        help="strip stopwords",
+    )
+    parser.add_argument(
+        "--plot", dest="plot", action="store_true", default=False, help="plot figure"
+    )
+    parser.add_argument(
+        "--sentiment",
+        dest="sentiment",
+        action="store_true",
+        default=False,
+        help="activate sentiment analysis",
+    )
     args = parser.parse_args()
     if args.verbose:
         logger.setLevel(logging.DEBUG)
@@ -153,7 +183,7 @@ if __name__ == "__main__":
         raise NotImplementedError(args.sentiment)
 
     # read the file into an RDD
-    logger.info('Processing %s', args.file)
+    logger.info("Processing %s", args.file)
     rdd = spark.sparkContext.textFile(args.file)
 
     stats = []  # list of tuples (description, value)

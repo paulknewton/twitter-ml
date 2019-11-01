@@ -29,10 +29,12 @@ class MovieReviews:
 
         nltk.download("stopwords")
         from nltk.corpus import stopwords
-        self._stopwords = stopwords.words('english')
 
-        nltk.download('movie_reviews')
+        self._stopwords = stopwords.words("english")
+
+        nltk.download("movie_reviews")
         from nltk.corpus import movie_reviews
+
         self._data = movie_reviews
 
         self._features = []  #  lazy load
@@ -91,17 +93,23 @@ class MovieReviews:
         logger.debug("Building data set...")
 
         # build list of words (1 list per doc) and pos/neg category
-        documents = [(list(self.reviews.words(fileid)), category)
-                     for category in self.reviews.categories()
-                     for fileid in tqdm(self.reviews.fileids(category), desc="Review extraction")]
+        documents = [
+            (list(self.reviews.words(fileid)), category)
+            for category in self.reviews.categories()
+            for fileid in tqdm(self.reviews.fileids(category), desc="Review extraction")
+        ]
         random.shuffle(documents)
 
         # build a feature encoding and category for each review in the movie DB
 
         # encode the categories as integers via a LabelEncoder
         le = LabelEncoder()
-        X, y = zip(*[(Utils.encode_features(self.features, review), category) for (review, category) in
-                     tqdm(documents, desc="Feature encoding")])
+        X, y = zip(
+            *[
+                (Utils.encode_features(self.features, review), category)
+                for (review, category) in tqdm(documents, desc="Feature encoding")
+            ]
+        )
 
         X = list(X)
         y = list(le.fit_transform(y))

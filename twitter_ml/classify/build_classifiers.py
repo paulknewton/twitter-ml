@@ -9,14 +9,18 @@ import yaml
 from twitter_ml.classify.sentiment import Sentiment
 from twitter_ml.classify.movie_reviews import MovieReviews
 
-with open("logging.yaml", 'rt') as f:
+with open("logging.yaml", "rt") as f:
     logging.config.dictConfig(yaml.safe_load(f.read()))
 
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Builds scikit-learn/nltk classifiers based on training data.')
-    parser.add_argument("--features", action="store_true", default=False, help="list features and exit")
+    parser = argparse.ArgumentParser(
+        description="Builds scikit-learn/nltk classifiers based on training data."
+    )
+    parser.add_argument(
+        "--features", action="store_true", default=False, help="list features and exit"
+    )
     args = parser.parse_args()
 
     data = MovieReviews()

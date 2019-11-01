@@ -30,9 +30,13 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
         :param classifiers: the list of sub-classifiers used in the voting
         """
         if len(classifiers) % 2 == 0:
-            raise ValueError("Majority voting classifier needs an odd number of classifiers")
+            raise ValueError(
+                "Majority voting classifier needs an odd number of classifiers"
+            )
 
-        self._raw_classifiers = classifiers.copy()  # copy the list in case it is changed elsewhere
+        self._raw_classifiers = (
+            classifiers.copy()
+        )  # copy the list in case it is changed elsewhere
         self._fitted_classifiers: Dict[str, Any] = {}
 
     @property
@@ -161,16 +165,14 @@ class Sentiment:
             # Sentiment._create_classifier(nltk.NaiveBayesClassifier, "naivebayes", training_data,
             #                              testing_data),
             # "Naive Bayes classifier from NLTK"),
-            "multinomilnb": (MultinomialNB(),
-                             "Multinomial NB classifier from SciKit"),
-            "bernouillinb": (BernoulliNB(),
-                             "Bernouilli NB classifier from SciKit"),
-            "logisticregression": (LogisticRegression(),
-                                   "Logistic Regression classifier from SciKit"),
-            "sgd": (SGDClassifier(),
-                    "SGD classifier from SciKit"),
-            "linearrsvc": (LinearSVC(),
-                           "Linear SVC classifier from SciKit")
+            "multinomilnb": (MultinomialNB(), "Multinomial NB classifier from SciKit"),
+            "bernouillinb": (BernoulliNB(), "Bernouilli NB classifier from SciKit"),
+            "logisticregression": (
+                LogisticRegression(),
+                "Logistic Regression classifier from SciKit",
+            ),
+            "sgd": (SGDClassifier(), "SGD classifier from SciKit"),
+            "linearrsvc": (LinearSVC(), "Linear SVC classifier from SciKit")
             # ,
             # "nusvc": (NuSVC(), "nusvc",
             #           "Nu SVC classifier from SciKit")
@@ -180,7 +182,9 @@ class Sentiment:
         self._voting_classifier = VoteClassifier(sub_classifiers).fit(X_train, y_train)
         Sentiment._saveit(self._voting_classifier, "voting.pickle")
 
-    def classify_sentiment(self, text: str, sub_classifier: str = None) -> Tuple[np.array, np.array, int]:
+    def classify_sentiment(
+        self, text: str, sub_classifier: str = None
+    ) -> Tuple[np.array, np.array, int]:
         """
         Classify a piece of text as positive ("pos") or negative ("neg").
 
@@ -195,7 +199,9 @@ class Sentiment:
                 self.feature_list = pickle.load(features_f)
 
         # build feature set for the text being classified
-        feature_encoding = Utils.encode_features(self.feature_list, text.split()).reshape(1, -1)
+        feature_encoding = Utils.encode_features(
+            self.feature_list, text.split()
+        ).reshape(1, -1)
 
         if sub_classifier:
             logger.debug("Using sub-classifier: %s", sub_classifier)

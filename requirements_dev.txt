@@ -12,3 +12,4 @@ pytest-runner>=5.1
 m2r>=0.2.1
 coverage>=4.5.4
 mypy==0.740
+black==19.10b0

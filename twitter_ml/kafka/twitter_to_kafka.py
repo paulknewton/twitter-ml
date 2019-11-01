@@ -11,7 +11,7 @@ from twitter_ml.utils.config import Config
 
 publish_topic = "brexit"  # topic used to publish
 
-with open("logging.yaml", 'rt') as f:
+with open("logging.yaml", "rt") as f:
     logging.config.dictConfig(yaml.safe_load(f.read()))
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class StdOutListener(StreamListener):
     def on_data(self, data):
-        producer.send_messages(publish_topic, data.encode('utf-8'))
+        producer.send_messages(publish_topic, data.encode("utf-8"))
         print(data)
         return True
 
@@ -29,9 +29,16 @@ class StdOutListener(StreamListener):
 
 if __name__ == "__main__":
     # read command-line args
-    parser = argparse.ArgumentParser(description='Consumer to read tweets from Kafka and classify sentiment.')
-    parser.add_argument('--twitter', nargs=1, dest='twitter', default="brexit",
-                        help='topic to extract from Twitter')
+    parser = argparse.ArgumentParser(
+        description="Consumer to read tweets from Kafka and classify sentiment."
+    )
+    parser.add_argument(
+        "--twitter",
+        nargs=1,
+        dest="twitter",
+        default="brexit",
+        help="topic to extract from Twitter",
+    )
     args = parser.parse_args()
 
     config = Config("twitter.yaml")

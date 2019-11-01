@@ -20,7 +20,7 @@ class Config:
         "twitter_token": None,
         "twitter_secret": None,
         "consumer_key": None,
-        "consumer_secret": None
+        "consumer_secret": None,
     }
 
     def __init__(self, filename: str):
@@ -33,7 +33,7 @@ class Config:
         self.root = None
 
         try:
-            with open(filename, 'r') as ymlfile:
+            with open(filename, "r") as ymlfile:
                 self.root = yaml.load(ymlfile, Loader=yaml.FullLoader)
         except FileNotFoundError as e:
             logger.error("Could not load config file %s", filename)
