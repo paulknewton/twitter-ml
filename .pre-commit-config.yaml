@@ -22,7 +22,7 @@ repos:
         rev: v0.740
         hooks:
             -   id: mypy
-                args: [twitter_ml]
+                args: [--no-strict-optional, --ignore-missing-imports]
     -   repo: https://github.com/pre-commit/mirrors-isort
         rev: v4.3.21
         hooks:

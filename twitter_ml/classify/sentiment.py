@@ -1,6 +1,7 @@
 """Main classifier logic."""
 import logging
 import pickle
+import string
 from statistics import mode
 from typing import Any, Dict, List, Tuple
 
@@ -199,7 +200,10 @@ class Sentiment:
 
         # build feature set for the text being classified
         feature_encoding = Utils.encode_features(
-            self.feature_list, text.split()
+            self.feature_list,
+            text.translate(
+                str.maketrans("", "", string.punctuation)
+            ).split(),  # remove punctuation
         ).reshape(1, -1)
 
         if sub_classifier:
