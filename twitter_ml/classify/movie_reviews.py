@@ -20,7 +20,7 @@ class MovieReviews:
     Used to generate test/training data by extracting features.
     """
 
-    def __init__(self):
+    def __init__(self, num_features):
         """Instantiate the class and download the NLTK stopwords and review data."""
         if "NLTK_PROXY" in os.environ:
             logger.info("Using proxy %s", os.environ["NLTK_PROXY"])
@@ -37,6 +37,8 @@ class MovieReviews:
         self._data = movie_reviews
 
         self._features = []  #  lazy load
+
+        self.num_features = num_features
 
     @property
     def stopwords(self) -> List[str]:
@@ -59,22 +61,37 @@ class MovieReviews:
 
         :return: the list of feature words
         """
-        # TODO load from pickle file if available
+        # if already loaded
         if self._features:
             return self._features
+
+        # if available on disk
+        # save the words used in the feature list (used when classifying)
+        feature_fn = "models/features.pickle"
+        logger.debug("Loading from %s...", feature_fn)
+        try:
+            with open(feature_fn, "rb") as features_f:
+                self._features = pickle.load(features_f)
+                return self._features
+        except FileNotFoundError as e:
+            logger.debug(e)
+            pass
 
         # lazy load the most common words to use for building features
         all_words = []
         for w in tqdm(self.reviews.words(), desc="Feature identification"):
             w = w.lower()
+
+            # strip stopwords from the feature list
             if w not in self.stopwords:
                 all_words.append(w.lower())
+            # all_words.append(w.lower()) # try including all stopwords to improve model accuracy
 
         all_words_dist = nltk.FreqDist(all_words)
         # logger.debug("Frequency dist of 15 most common words:%s", all_words_dist.most_common(15))
         # logger.debug("Frequency of 'stupid':%d", all_words_dist["stupid"])
         # TODO tune word bag size
-        self._features = list(all_words_dist.keys())[:3000]
+        self._features = list(all_words_dist.keys())[: self.num_features]
 
         # save the words used in the feature list (used when classifying)
         feature_fn = "models/features.pickle"
@@ -85,7 +102,7 @@ class MovieReviews:
 
     def get_samples(self) -> Tuple[List[int], List[int]]:
         """
-        Create a (feature set, category) tuple for all movie reviews in the NLTK movie review dataset.
+        Create a (feature encoding vector, category) tuple for all movie reviews in the NLTK movie review dataset.
 
         :return: a tuple of features (matrix) and categories (vector)
         """

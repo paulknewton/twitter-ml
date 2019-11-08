@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.naive_bayes import BernoulliNB, MultinomialNB
-from sklearn.svm import LinearSVC
+from sklearn.svm import LinearSVC  # , NuSVC
 from twitter_ml.classify.utils import Utils
 
 logger = logging.getLogger(__name__)
@@ -29,28 +29,38 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
 
         :param classifiers: the list of sub-classifiers used in the voting
         """
-        if len(classifiers) % 2 == 0:
-            raise ValueError(
-                "Majority voting classifier needs an odd number of classifiers"
-            )
+        # if len(classifiers) % 2 == 0:
+        #     raise ValueError(
+        #         "Majority voting classifier needs an odd number of classifiers"
+        #     )
 
         self._raw_classifiers = (
-            classifiers.copy()
-        )  # copy the list in case it is changed elsewhere
+            classifiers.copy()  # copy the list in case it is changed elsewhere
+        )
         self._fitted_classifiers: Dict[str, Any] = {}
 
     @property
     def sub_classifiers(self):
         """Get the internal classifiers used by the voting classifier."""
-        return self._raw_classifiers
+        return self._fitted_classifiers
 
     def fit(self, X, y: List[str]):
-        """Fit the classifier to the test data."""
+        """
+        Fit the classifier to the test data.
+
+        :return the trained classifier
+        """
+        logger.info("Training voting classifier")
+
+        logger.debug("len(X, y) = %d, %d", len(X), len(y))
+        unique, counts = np.unique(np.array(y), return_counts=True)
+        logger.debug(list(zip(unique, counts)))
+
         # drop any old fitted classifiers
         self._fitted_classifiers = {}
 
         for label, c in self._raw_classifiers.items():
-            logger.debug("Training classifiers...")
+            logger.debug("Training classifier %s", label)
             self._fitted_classifiers[label] = c[0].fit(X, y)
             # logger.debug("%s %% accuracy: %f", desc, nltk.classify.accuracy(trained_c, testing_data) * 100)
             # Sentiment._saveit(trained_c, desc + ".pickle")
@@ -66,19 +76,20 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
         :param X: the features to classify
         :return calculated category of the features (pos/neg)
         """
-        logger.info("Classifying with 'VoteClassifier'")
+        logger.debug("Classifying with 'VoteClassifier'")
         classifier_list = self._fitted_classifiers
 
         predictions = []  # predict multiple samples at once
 
-        for sample in X:
+        for id, sample in enumerate(X):
             votes = []
             for label, c in classifier_list.items():
-                v = c.predict(X)[0]
-                logger.info("%s: %s", label, v)
+                v = c.predict(sample.reshape(1, -1))[0]  # why need to reshape?
+                logger.debug("%s: %s", label, v)
                 votes.append(v)
             majority_vote = mode(votes)
             predictions.append(majority_vote)
+            logger.debug("Classification for sample %d: %s", id, majority_vote)
 
         return predictions
 
@@ -152,7 +163,7 @@ class Sentiment:
         with open(filename, "wb") as classifier_f:
             pickle.dump(classifier, classifier_f)
 
-    def init_classifiers(self, X_train, X_test, y_train, y_test) -> None:
+    def init_classifiers(self, X_train, y_train) -> None:
         """
         Create a VoteClassifier from a collection of sub-classifiers and train/test them with the provided data.
 
@@ -162,9 +173,9 @@ class Sentiment:
         # create the sub classifiers, and save this to disk in case we need them later
         sub_classifiers = {
             # "naivebayes": (
-            # Sentiment._create_classifier(nltk.NaiveBayesClassifier, "naivebayes", training_data,
-            #                              testing_data),
-            # "Naive Bayes classifier from NLTK"),
+            #    Sentiment._create_classifier(nltk.NaiveBayesClassifier, "naivebayes", training_data,
+            #                                 testing_data),
+            #    "Naive Bayes classifier from NLTK"),
             "multinomilnb": (MultinomialNB(), "Multinomial NB classifier from SciKit"),
             "bernouillinb": (BernoulliNB(), "Bernouilli NB classifier from SciKit"),
             "logisticregression": (
@@ -175,7 +186,7 @@ class Sentiment:
             "linearrsvc": (LinearSVC(), "Linear SVC classifier from SciKit")
             # ,
             # "nusvc": (NuSVC(), "nusvc",
-            #           "Nu SVC classifier from SciKit")
+            #          "Nu SVC classifier from SciKit")
         }
 
         # wrap the sub classifiers in a VoteClassifier
