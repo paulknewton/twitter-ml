@@ -53,8 +53,8 @@ if __name__ == "__main__":
     if args.features:
         print("Features:")
         features = data.features
-        for i, f in enumerate(features):
-            print("%d - %s" % (i, f))
+        for i, feat in enumerate(features):
+            print("%d - %s" % (i, feat))
         sys.exit(0)
 
     classifier = Sentiment()
