@@ -4,8 +4,10 @@ import argparse
 import logging.config
 import sys
 
+import matplotlib.pyplot as plt
 import numpy as np
 import yaml
+from sklearn.utils.multiclass import unique_labels
 from twitter_ml.classify.movie_reviews import MovieReviews
 from twitter_ml.classify.sentiment import Sentiment
 from twitter_ml.classify.utils import Utils
@@ -14,6 +16,22 @@ with open("logging.yaml", "rt") as f:
     logging.config.dictConfig(yaml.safe_load(f.read()))
 
 logger = logging.getLogger(__name__)
+
+
+def do_graphs(X, y):
+    """
+    Command method: output graphs.
+
+    :param X: test data
+    :param y: test categories
+    """
+    y_pred = classifier.voting_classifier.predict(X)
+    Utils.plot_confusion_matrix(
+        y, y_pred, classes=unique_labels(y), title="Confusion matrix (non-normalised)"
+    )
+    # Utils.plot_confusion_matrix(y, y_pred, classes=unique_labels(y), normalize=True,
+    #                            title='Confusion matrix (normalised)')
+    plt.show()
 
 
 def do_report(X, y):
@@ -44,7 +62,13 @@ if __name__ == "__main__":
         "--report",
         action="store_true",
         default=False,
-        help="print classification report and exit",
+        help="print classifier metrics and exit",
+    )
+    parser.add_argument(
+        "--graphs",
+        action="store_true",
+        default=False,
+        help="print classifier graphs and exit",
     )
     args = parser.parse_args()
 
@@ -70,6 +94,10 @@ if __name__ == "__main__":
 
     if args.report:
         do_report(X_test, y_test)
+        sys.exit(0)
+
+    if args.graphs:
+        do_graphs(X_test, y_test)
         sys.exit(0)
 
     # building classifiers is time-consuming so only do this if we get here
