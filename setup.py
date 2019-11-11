@@ -17,6 +17,7 @@ requirements = [
     "nltk",
     "scikit-learn",
     "tweepy",
+    "pandas",
     "PyYAML",
     "PyWaffle",
     # 'pyspark',
