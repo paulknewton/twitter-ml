@@ -23,7 +23,7 @@ import sys
 
 import twitter_ml
 
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("../twitter_ml"))
 
 
 # -- General configuration ---------------------------------------------
@@ -108,7 +108,7 @@ htmlhelp_basename = "twitter_mldoc"
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
-    # 'papersize': 'letterpaper',
+    "papersize": "a4paper",
     # The font size ('10pt', '11pt' or '12pt').
     #
     # 'pointsize': '10pt',
