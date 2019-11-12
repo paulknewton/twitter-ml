@@ -31,7 +31,7 @@ The sub-classifiers used inside the Voting classifier are defined in the ``votin
             class: LinearSVC
             description: Linear SVC classifier from SciKit
 
-Note how there is a single ``voting`` section containing a list (actually a dicitonary) of sub-classifiers.
+Note how there is a single ``voting`` section containing a list (actually a dictionary) of sub-classifiers.
 Each entry is of the form:
 
 .. code-block:: console
