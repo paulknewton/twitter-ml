@@ -2,13 +2,88 @@
 Usage
 =====
 
+Build Classifier
+----------------
+Builds text classifiers.
+
+Before starting any classification you first need to train the classifiers.
+Some pre-built models are stored in the ``models`` folder. But any changes to the classifier
+configuration, the feature definition, or even the training data will require the classifiers to be re-built.
+So let's start with this step first.
+
+Classifiers are built with the ``build_classifiers.py`` program:
+
+.. code-block:: console
+
+    $ ./twitter_ml/classify/build_classifiers.py
+
+    2019-11-12 18:48:51,480 - __main__ - INFO - Loading feature sets and training data...
+    Review extraction: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:01<00:00, 804.53it/s]
+    Review extraction: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1000/1000 [00:01<00:00, 746.02it/s]
+    Feature encoding: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2000/2000 [00:00<00:00, 2347.35it/s]
+    2019-11-12 18:48:54,961 - __main__ - INFO - Creating classifiers...
+    2019-11-12 18:48:54,961 - twitter_ml.classify.sentiment - INFO - Training voting classifier
+    2019-11-12 18:48:55,519 - twitter_ml.classify.sentiment - INFO - Saving classifier to models/voting.pickle...
+    2019-11-12 18:48:55,520 - __main__ - INFO - Done.
+
+This downloads a set of training data (the default configuration uses some on-line Movie Reviews shipped with the NLTK toolkit).
+The program extracts a set of features from the data and uses this to build a classifier. The classifier is stored in the ```model``` folder.
+
+The classifier is now ready to be used. If you want to start using it, jump ahead to the Text Classifier section.
+
+``build_classifiers.py`` also supports other command-line arguments:
+
+.. code-block:: console
+
+    $ ./twitter_ml/classify/build_classifiers.py -h
+
+    usage: build_classifiers.py [-h] [--features] [--report] [--graphs]
+
+    Builds scikit-learn/nltk classifiers based on training data.
+
+    optional arguments:
+      -h, --help  show this help message and exit
+      --features  list features and exit
+      --report    print classifier metrics and exit
+      --graphs    print classifier graphs and exit
+
+The arguments are summarised below:
+
+* features
+    Lists the words that are extracted from the training data and exits. These words are the 'features' used to classify documents.
+
+* report
+    Build the classifier then run the classifier against some test data. A textual summary of the performance is printed.
+    This is useful for evaluating how well the classifier is performing.
+
+.. code-block:: console
+
+    Metrics:
+                  precision    recall  f1-score   support
+
+               0       1.00      1.00      1.00        50
+               1       1.00      1.00      1.00        50
+
+        accuracy                           1.00       100
+       macro avg       1.00      1.00      1.00       100
+    weighted avg       1.00      1.00      1.00       100
+
+    Confusion matrix:
+    [[50  0]
+     [ 0 50]]
+
+* graphs
+    Print a series of graphs summarising the behaviour of the classifier.
+
+.. figure:: confusion.png
+
 Text Classifier
 ---------------
 A standalone program for classifying the sentiment of text using NLTK.
 
-.. code-block:: console
+.. code-block::console
 
-    $ python twitter_ml/classify/classify_text.py -h
+    $ ./twitter_ml/classify/classify_text.py -h
 
     usage: classify_text.py [-h] [--text TEXT [TEXT ...]]
                             [--files FILES [FILES ...]] [--classifier CLASSIFIER]

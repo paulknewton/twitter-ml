@@ -8,6 +8,7 @@ Welcome to Twitter ML's documentation!
    readme
    installation
    usage
+   configuration
    modules
    contributing
    authors

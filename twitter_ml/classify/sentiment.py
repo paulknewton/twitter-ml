@@ -175,7 +175,7 @@ class Sentiment:
         :param filename: the filename
         """
         filename = "models/" + filename
-        logger.debug("Saving classifier to %s...", filename)
+        logger.info("Saving classifier to %s...", filename)
         with open(filename, "wb") as classifier_f:
             pickle.dump(classifier, classifier_f)
 
