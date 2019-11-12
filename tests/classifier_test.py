@@ -3,6 +3,7 @@ import json
 import logging
 from typing import List
 
+import pytest
 from twitter_ml.classify.sentiment import Sentiment
 
 logger = logging.getLogger("sentiment-nltk")
@@ -37,13 +38,25 @@ def test_classify_json():
     helper_verify_expected(test_data.keys(), test_data.values())
 
 
+def test_missing_config():
+    """Test that a Sentiment class can only be instantiated with a valid configuration file."""
+    with pytest.raises(FileNotFoundError):
+        Sentiment("missing.yaml")
+
+
+def test_even_classifiers_in_voting_classifier():
+    """Test that a Voting Classifier must have an odd number of classifiers (to avoid a tied vote)."""
+    with pytest.raises(ValueError):
+        Sentiment("tests/test_even_classifiers.yaml")
+
+
 def helper_verify_expected(samples: List[str], expected: List[int]):
     """Classify each item of a list and assert this equals the expected results.
 
     :param samples: list of text samples to classify
     :param expected: list of expected classifications
     """
-    classifier = Sentiment()
+    classifier = Sentiment("tests/test_voting.yaml")
     for text, expected_classification in zip(samples, expected):
         _, _, sentiment = classifier.classify_sentiment(text)
         print("%s\nClassification: %s" % (text, sentiment))

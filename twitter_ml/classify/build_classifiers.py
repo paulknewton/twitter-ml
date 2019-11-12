@@ -81,7 +81,7 @@ if __name__ == "__main__":
             print("%d - %s" % (i, feat))
         sys.exit(0)
 
-    classifier = Sentiment()
+    classifier = Sentiment("voting.yaml")
 
     logger.info("Loading feature sets and training data...")
     X, y = data.get_samples()

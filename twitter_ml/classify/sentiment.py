@@ -2,14 +2,13 @@
 import logging
 import pickle
 import string
+from importlib import import_module
 from statistics import mode
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.linear_model import LogisticRegression, SGDClassifier
-from sklearn.naive_bayes import BernoulliNB, MultinomialNB
-from sklearn.svm import LinearSVC  # , NuSVC
+from twitter_ml.classify.config import Config
 from twitter_ml.classify.utils import Utils
 
 logger = logging.getLogger(__name__)
@@ -122,19 +121,36 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
 class Sentiment:
     """Class to initialise classifiers and expose common classification methods."""
 
-    def __init__(self):
+    def __init__(self, config_filename):
         """Instantiate the class with an internal majority voting classifier and feature set."""
         self._voting_classifier = None
         self.feature_list = None
 
-    @property
-    def sub_classifiers(self):
-        """
-        Return the internal classifiers used inside the majority voting classifier.
+        # load list of classifiers from config file
+        config = Config(config_filename)
 
-        :return: the list of sub-classifiers
-        """
-        return self.voting_classifier.sub_classifiers
+        voting_tag = "voting"
+        voting_config = config.get_config_value(voting_tag)
+        if not voting_config:
+            raise KeyError(
+                "Could not find section '%s' in config file. Exiting" % voting_config
+            )
+
+        # a voting classifer must have an odd number of sub-classifiers to avoid a tied vote
+        if len(voting_config) % 2 == 0:
+            raise ValueError(
+                "A voting classifer must have an odd number of sub-classifiers to avoid a tied vote"
+            )
+
+        self.sub_classifiers = {}
+
+        for clf_label, clf_config in voting_config.items():
+            logging.debug("Import %s", clf_config["module"])
+            module = import_module(clf_config["module"])
+            logging.debug("Class %s", clf_config["class"])
+            class_ = getattr(module, clf_config["class"])
+
+            self.sub_classifiers[clf_label] = (class_(), clf_config["description"])
 
     @property
     def voting_classifier(self) -> VoteClassifier:
@@ -170,27 +186,10 @@ class Sentiment:
         :param X_train: the data to use when training the classifier
         :param X_test: the data to use to evaluate the classifier
         """
-        # create the sub classifiers, and save this to disk in case we need them later
-        sub_classifiers = {
-            # "naivebayes": (
-            #    Sentiment._create_classifier(nltk.NaiveBayesClassifier, "naivebayes", training_data,
-            #                                 testing_data),
-            #    "Naive Bayes classifier from NLTK"),
-            "multinomilnb": (MultinomialNB(), "Multinomial NB classifier from SciKit"),
-            "bernouillinb": (BernoulliNB(), "Bernouilli NB classifier from SciKit"),
-            "logisticregression": (
-                LogisticRegression(),
-                "Logistic Regression classifier from SciKit",
-            ),
-            "sgd": (SGDClassifier(), "SGD classifier from SciKit"),
-            "linearrsvc": (LinearSVC(), "Linear SVC classifier from SciKit")
-            # ,
-            # "nusvc": (NuSVC(), "nusvc",
-            #          "Nu SVC classifier from SciKit")
-        }
-
         # wrap the sub classifiers in a VoteClassifier
-        self._voting_classifier = VoteClassifier(sub_classifiers).fit(X_train, y_train)
+        self._voting_classifier = VoteClassifier(self.sub_classifiers).fit(
+            X_train, y_train
+        )
         Sentiment._saveit(self._voting_classifier, "voting.pickle")
 
     def classify_sentiment(

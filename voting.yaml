@@ -1,0 +1,24 @@
+voting:
+    multinomilnb:
+        module: sklearn.naive_bayes
+        class: MultinomialNB
+        description: Multinomial NB classifier from SciKit
+    bernouillinb:
+        module: sklearn.naive_bayes
+        class: BernoulliNB
+        description: Bernouilli NB classifier from SciKit
+    logisticregression:
+        module: sklearn.linear_model
+        class: LogisticRegression
+        description: Logistic Regression classifier from SciKit
+    sgd:
+        module: sklearn.linear_model
+        class: SGDClassifier
+        description: SGD classifier from SciKit
+    linearrsvc:
+        module: sklearn.svm
+        class: LinearSVC
+        description: Linear SVC classifier from SciKit
+        # ,
+        # "nusvc": (NuSVC(), "nusvc",
+        #          "Nu SVC classifier from SciKit")

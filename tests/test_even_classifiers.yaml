@@ -1,0 +1,11 @@
+# Configuration file for a Voting Classifier with an even number of sub-classifiers.
+# THIS WILL FAIL
+voting:
+    multinomilnb:
+        module: sklearn.naive_bayes
+        class: MultinomialNB
+        description: Multinomial NB classifier from SciKit
+    bernouillinb:
+        module: sklearn.naive_bayes
+        class: BernoulliNB
+        description: Bernouilli NB classifier from SciKit

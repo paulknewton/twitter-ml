@@ -66,7 +66,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    sentiment = Sentiment()
+    sentiment = Sentiment("voting.yaml")
     results = []
 
     if args.list:
