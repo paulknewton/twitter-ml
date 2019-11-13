@@ -45,7 +45,14 @@ def do_report(X, y):
     unique, counts = np.unique(np.array(y), return_counts=True)
     logger.debug("Categories: " + str(list(zip(unique, counts))))
 
-    y_pred = classifier.voting_classifier.predict(X)
+    _dump_metrics("voting", classifier.voting_classifier, X, y)
+    for label, clf in classifier.voting_classifier.sub_classifiers.items():
+        _dump_metrics(label, clf, X, y)
+
+
+def _dump_metrics(label, clf, X, y):
+    print("-----------------\nSUMMARY FOR CLASSIFIER: %s" % label)
+    y_pred = clf.predict(X)
     print("Metrics:\n" + Utils.get_classification_metrics(y, y_pred))
     print("Confusion matrix:")
     print(Utils.get_confusion_matrix(y, y_pred))
@@ -62,7 +69,7 @@ if __name__ == "__main__":
         "--report",
         action="store_true",
         default=False,
-        help="print classifier metrics and exit",
+        help="print classifier/sub-classifier metrics and exit",
     )
     parser.add_argument(
         "--graphs",
