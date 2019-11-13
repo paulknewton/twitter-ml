@@ -50,6 +50,12 @@ def test_even_classifiers_in_voting_classifier():
         Sentiment("tests/test_even_classifiers.yaml")
 
 
+def test_no_sub_classifiers():
+    """Test that a voting classifier cannot have 0 sub-classifiers."""
+    with pytest.raises(KeyError):
+        Sentiment("tests/test_0_classifiers.yaml")
+
+
 def helper_verify_expected(samples: List[str], expected: List[int]):
     """Classify each item of a list and assert this equals the expected results.
 
