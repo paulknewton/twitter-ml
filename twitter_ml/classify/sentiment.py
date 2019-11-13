@@ -187,9 +187,8 @@ class Sentiment:
         :param X_test: the data to use to evaluate the classifier
         """
         # wrap the sub classifiers in a VoteClassifier
-        self._voting_classifier = VoteClassifier(self.sub_classifiers).fit(
-            X_train, y_train
-        )
+        self._voting_classifier = VoteClassifier(self.sub_classifiers)
+        self._voting_classifier.fit(X_train, y_train)
         Sentiment._saveit(self._voting_classifier, "voting.pickle")
 
     def classify_sentiment(

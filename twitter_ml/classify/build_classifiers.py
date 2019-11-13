@@ -3,11 +3,14 @@
 import argparse
 import logging.config
 import sys
+from typing import Any, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
+from sklearn.model_selection import learning_curve
 from sklearn.utils.multiclass import unique_labels
+from tqdm import tqdm
 from twitter_ml.classify.movie_reviews import MovieReviews
 from twitter_ml.classify.sentiment import Sentiment
 from twitter_ml.classify.utils import Utils
@@ -18,36 +21,72 @@ with open("logging.yaml", "rt") as f:
 logger = logging.getLogger(__name__)
 
 
-def do_graphs(X, y):
+def do_graphs(classifiers: List[Any], X, y):
     """
     Command method: output graphs.
 
+    :param classifiers: list of classifiers
     :param X: test data
     :param y: test categories
     """
-    y_pred = classifier.voting_classifier.predict(X)
-    Utils.plot_confusion_matrix(
-        y, y_pred, classes=unique_labels(y), title="Confusion matrix (non-normalised)"
-    )
-    # Utils.plot_confusion_matrix(y, y_pred, classes=unique_labels(y), normalize=True,
-    #                            title='Confusion matrix (normalised)')
-    plt.show()
+    for clf in classifiers:
+        y_pred = clf.predict(X)
+        Utils.plot_confusion_matrix(
+            y,
+            y_pred,
+            classes=unique_labels(y),
+            title="Confusion matrix (non-normalised)",
+        )
+        plt.show()
 
 
-def do_report(X, y):
+def do_report(classifiers: List[Tuple[str, Any]], X, y):
     """
     Print key matrics for a set of test data.
 
+    :param classifiers: list of label, classifier tuples
     :param X: a matrix of samples
     :param y: a vector of categories
     """
-    logger.debug("Samples: len(X, y) = %d, %d" % (len(X), len(y)))
+    logger.info("Samples: len(X, y) = %d, %d" % (len(X), len(y)))
     unique, counts = np.unique(np.array(y), return_counts=True)
-    logger.debug("Categories: " + str(list(zip(unique, counts))))
+    logger.info("Categories: " + str(list(zip(unique, counts))))
 
-    _dump_metrics("voting", classifier.voting_classifier, X, y)
-    for label, clf in classifier.voting_classifier.sub_classifiers.items():
+    for label, clf in classifiers:
         _dump_metrics(label, clf, X, y)
+
+
+def do_learning_curve(classifiers: List[Tuple[str, Any]], X, y):
+    """
+    Plot learning curves for varying sample sizes.
+
+    :param classifiers: list of label, classifier tuples
+    :param X: a matrix of samples
+    :param y: a vector of categories
+    """
+    fig, ax = plt.subplots()
+    for label, clf in tqdm(classifiers, desc="Learning curves"):
+        train_sizes = np.linspace(0.05, 1, 50)
+        train_sizes, train_scores, test_scores = learning_curve(
+            clf, X, y, train_sizes=train_sizes, cv=5
+        )
+
+        # average across CV cycle results
+        train_mean = np.mean(train_scores, axis=1)
+        # train_std = np.std(train_scores, axis=1)
+        test_mean = np.mean(test_scores, axis=1)
+        # test_std = np.std(test_scores, axis=1)
+
+        ax.plot(train_sizes, train_mean, marker="o")
+        ax.plot(train_sizes, test_mean, marker="x", label=label)
+        # plt.fill_between(train_sizes, train_mean - train_std, train_mean + train_std, color="#DDDDDD")
+        # plt.fill_between(train_sizes, test_mean - test_std, test_mean + test_std, color="#DDDDDD")
+
+    ax.set_xlabel("Training samples")
+    ax.set_ylabel("Score")
+    ax.set_title("Learning curve for classifiers")
+    ax.legend()
+    plt.show()
 
 
 def _dump_metrics(label, clf, X, y):
@@ -77,6 +116,12 @@ if __name__ == "__main__":
         default=False,
         help="print classifier graphs and exit",
     )
+    parser.add_argument(
+        "--learning",
+        action="store_true",
+        default=False,
+        help="print classifier learning curves",
+    )
     args = parser.parse_args()
 
     data = MovieReviews(3000)
@@ -88,7 +133,7 @@ if __name__ == "__main__":
             print("%d - %s" % (i, feat))
         sys.exit(0)
 
-    classifier = Sentiment("voting.yaml")
+    sentiment = Sentiment("voting.yaml")
 
     logger.info("Loading feature sets and training data...")
     X, y = data.get_samples()
@@ -100,14 +145,22 @@ if __name__ == "__main__":
     y_test = y[1900:]
 
     if args.report:
-        do_report(X_test, y_test)
+        classifiers = [("voting", sentiment.voting_classifier)] + list(
+            sentiment.voting_classifier.sub_classifiers.items()
+        )
+        do_report(classifiers, X_test, y_test)
         sys.exit(0)
 
     if args.graphs:
-        do_graphs(X_test, y_test)
+        do_graphs([sentiment.voting_classifier], X_test, y_test)
+        sys.exit(0)
+
+    if args.learning:
+        classifiers = list(sentiment.voting_classifier.sub_classifiers.items())
+        do_learning_curve(classifiers, X, y)
         sys.exit(0)
 
     # building classifiers is time-consuming so only do this if we get here
     logger.info("Creating classifiers...")
-    classifier.init_classifiers(X_train, y_train)
+    sentiment.init_classifiers(X_train, y_train)
     logger.info("Done.")

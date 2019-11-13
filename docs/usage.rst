@@ -46,6 +46,7 @@ The classifier is now ready to be used. If you want to start using it, jump ahea
       --features  list features and exit
       --report    print classifier metrics and exit
       --graphs    print classifier graphs and exit
+      --learning  print classifier learning curves
 
 The arguments are summarised below:
 
@@ -76,6 +77,11 @@ The arguments are summarised below:
     Print a series of graphs summarising the behaviour of the classifier.
 
 .. figure:: confusion.png
+
+* learning
+    Calculate learning curves for each of the sub-classifiers and plot the results. This shows how the performance of each classifier changes based on the number of training samples.
+
+.. figure:: learning_curve.png
 
 Text Classifier
 ---------------
