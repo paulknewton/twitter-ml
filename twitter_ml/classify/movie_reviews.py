@@ -112,7 +112,9 @@ class MovieReviews:
         documents = [
             (list(self.reviews.words(fileid)), category)
             for category in self.reviews.categories()
-            for fileid in tqdm(self.reviews.fileids(category), desc="Review extraction")
+            for fileid in tqdm(
+                self.reviews.fileids(category), desc="Building movie reviews"
+            )
         ]
         random.shuffle(documents)
 
@@ -123,7 +125,9 @@ class MovieReviews:
         X, y = zip(
             *[
                 (Utils.encode_features(self.features, review), category)
-                for (review, category) in tqdm(documents, desc="Feature encoding")
+                for (review, category) in tqdm(
+                    documents, desc="Calculating feature vectors"
+                )
             ]
         )
 

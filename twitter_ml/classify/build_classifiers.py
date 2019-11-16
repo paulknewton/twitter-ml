@@ -21,7 +21,7 @@ with open("logging.yaml", "rt") as f:
 logger = logging.getLogger(__name__)
 
 
-def do_graphs(classifiers: List[Any], X, y):
+def do_graphs(classifiers: List[Tuple[str, Any]], X, y):
     """
     Command method: output graphs.
 
@@ -29,13 +29,13 @@ def do_graphs(classifiers: List[Any], X, y):
     :param X: test data
     :param y: test categories
     """
-    for clf in classifiers:
+    for label, clf in classifiers:
         y_pred = clf.predict(X)
         Utils.plot_confusion_matrix(
             y,
             y_pred,
             classes=unique_labels(y),
-            title="Confusion matrix (non-normalised)",
+            title="Confusion matrix for %s (non-normalised)" % label,
         )
         plt.show()
 
@@ -45,7 +45,7 @@ def do_report(classifiers: List[Tuple[str, Any]], X, y):
     Print key matrics for a set of test data.
 
     :param classifiers: list of label, classifier tuples
-    :param X: a matrix of samples
+    :param X: a matrix of test samples
     :param y: a vector of categories
     """
     logger.info("Samples: len(X, y) = %d, %d" % (len(X), len(y)))
@@ -61,26 +61,28 @@ def do_learning_curve(classifiers: List[Tuple[str, Any]], X, y):
     Plot learning curves for varying sample sizes.
 
     :param classifiers: list of label, classifier tuples
-    :param X: a matrix of samples
+    :param X: a matrix of samples. Note this is both training data and test data.
     :param y: a vector of categories
     """
     fig, ax = plt.subplots()
-    for label, clf in tqdm(classifiers, desc="Learning curves"):
+    for label, clf in tqdm(classifiers, desc="Calculating learning curves"):
         train_sizes = np.linspace(0.05, 1, 50)
         train_sizes, train_scores, test_scores = learning_curve(
             clf, X, y, train_sizes=train_sizes, cv=5
         )
 
-        # average across CV cycle results
+        # calculate the average across CV cycle results
         train_mean = np.mean(train_scores, axis=1)
         # train_std = np.std(train_scores, axis=1)
         test_mean = np.mean(test_scores, axis=1)
-        # test_std = np.std(test_scores, axis=1)
+        test_std = np.std(test_scores, axis=1)
 
-        ax.plot(train_sizes, train_mean, marker="o")
+        ax.plot(train_sizes, train_mean, marker="o")  # no label
         ax.plot(train_sizes, test_mean, marker="x", label=label)
         # plt.fill_between(train_sizes, train_mean - train_std, train_mean + train_std, color="#DDDDDD")
-        # plt.fill_between(train_sizes, test_mean - test_std, test_mean + test_std, color="#DDDDDD")
+        plt.fill_between(
+            train_sizes, test_mean - test_std, test_mean + test_std, color="#DDDDDD"
+        )
 
     ax.set_xlabel("Training samples")
     ax.set_ylabel("Score")
@@ -152,7 +154,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     if args.graphs:
-        do_graphs([sentiment.voting_classifier], X_test, y_test)
+        do_graphs([("voting", sentiment.voting_classifier)], X_test, y_test)
         sys.exit(0)
 
     if args.learning:
