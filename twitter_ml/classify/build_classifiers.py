@@ -2,6 +2,7 @@
 """Re-create classifiers based on training data."""
 import argparse
 import logging.config
+import math
 import sys
 from typing import Any, List, Tuple
 
@@ -30,12 +31,19 @@ def do_graphs(classifiers: List[Tuple[str, Any]], X, y):
     :param X: test data
     :param y: test categories
     """
-    # plot confusion matrix
-    for label, clf in classifiers:
+    # plot confusion matries in a grid
+    subplots_cols = 4
+    subplots_rows = math.ceil(len(classifiers) / subplots_cols)
+    logger.debug("Plot dimensions: %d x %d", subplots_rows, subplots_cols)
+
+    fig, axs = plt.subplots(subplots_rows, subplots_cols, figsize=(15, 8))
+    graph_data = list(zip(axs.flat, classifiers))
+    for ax, (label, clf) in graph_data:
         y_pred = clf.predict(X)
 
-        Utils.plot_confusion_matrix(y, y_pred, unique_labels(y), label)
-        plt.show()
+        Utils.plot_confusion_matrix(y, y_pred, unique_labels(y), label, ax)
+    # plt.title("x")
+    plt.show()
 
     # plot ROC curve and calculate AUC
     for label, clf in classifiers:

@@ -1,4 +1,5 @@
 """Utility methods for classification."""
+import logging
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -6,6 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.utils.multiclass import unique_labels
+
+logger = logging.getLogger(__name__)
 
 
 class Utils:
@@ -55,7 +58,7 @@ class Utils:
         return confusion_matrix(y_true, y_pred)
 
     def plot_confusion_matrix(
-        y_true, y_pred, classes, label: str, normalize=False, cmap=plt.cm.Blues
+        y_true, y_pred, classes, label: str, ax, normalize=False, cmap=plt.cm.Blues
     ):
         """
         Create a matplotlib confusion matrix.
@@ -64,9 +67,9 @@ class Utils:
         Taken from scikit examples https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
         """
         if normalize:
-            title = "Normalised confusion matrix (%s)" % label
+            title = "%s (normalised)" % label
         else:
-            title = "Confusion matrix, no normalisation (%s)" % label
+            title = "%s (non-normalised)" % label
 
         # Compute confusion matrix
         cm = confusion_matrix(y_true, y_pred)
@@ -77,7 +80,6 @@ class Utils:
         print(title)
         print(cm)
 
-        fig, ax = plt.subplots()
         im = ax.imshow(cm, interpolation="nearest", cmap=cmap)
         ax.figure.colorbar(im, ax=ax)
         # We want to show all ticks...
