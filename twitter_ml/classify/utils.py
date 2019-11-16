@@ -2,7 +2,6 @@
 from typing import List
 
 import matplotlib.pyplot as plt
-
 # from sklearn.preprocessing import LabelEncoder
 import numpy as np
 from sklearn.metrics import classification_report, confusion_matrix
@@ -56,7 +55,7 @@ class Utils:
         return confusion_matrix(y_true, y_pred)
 
     def plot_confusion_matrix(
-        y_true, y_pred, classes, normalize=False, title: str = None, cmap=plt.cm.Blues
+        y_true, y_pred, classes, label: str, normalize=False, cmap=plt.cm.Blues
     ):
         """
         Create a matplotlib confusion matrix.
@@ -64,11 +63,10 @@ class Utils:
         Normalization can be applied by setting `normalize=True`.
         Taken from scikit examples https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
         """
-        if not title:
-            if normalize:
-                title = "Normalized confusion matrix"
-            else:
-                title = "Confusion matrix, without normalization"
+        if normalize:
+            title = "Normalised confusion matrix (%s)" % label
+        else:
+            title = "Confusion matrix, no normalisation (%s)" % label
 
         # Compute confusion matrix
         cm = confusion_matrix(y_true, y_pred)
@@ -76,10 +74,7 @@ class Utils:
         classes = classes[unique_labels(y_true, y_pred)]
         if normalize:
             cm = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
-            print("Normalized confusion matrix")
-        else:
-            print("Confusion matrix, without normalization")
-
+        print(title)
         print(cm)
 
         fig, ax = plt.subplots()
@@ -113,5 +108,5 @@ class Utils:
                     va="center",
                     color="white" if cm[i, j] > thresh else "black",
                 )
-        fig.tight_layout()
+        # fig.tight_layout()
         return ax

@@ -8,6 +8,7 @@ from typing import Any, List, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
+from sklearn.metrics import auc, roc_curve
 from sklearn.model_selection import learning_curve
 from sklearn.utils.multiclass import unique_labels
 from tqdm import tqdm
@@ -29,15 +30,27 @@ def do_graphs(classifiers: List[Tuple[str, Any]], X, y):
     :param X: test data
     :param y: test categories
     """
+    # plot confusion matrix
     for label, clf in classifiers:
         y_pred = clf.predict(X)
-        Utils.plot_confusion_matrix(
-            y,
-            y_pred,
-            classes=unique_labels(y),
-            title="Confusion matrix for %s (non-normalised)" % label,
-        )
+
+        Utils.plot_confusion_matrix(y, y_pred, unique_labels(y), label)
         plt.show()
+
+    # plot ROC curve and calculate AUC
+    for label, clf in classifiers:
+        y_pred = clf.predict(X)
+        fpr, tpr, thresholds = roc_curve(y, y_pred)
+        roc_auc = auc(fpr, tpr)
+        plt.plot(
+            fpr, tpr, lw=1, alpha=0.3, label="ROC %s (AUC = %0.2f)" % (label, roc_auc)
+        )
+        plt.plot(
+            [0, 1], [0, 1], linestyle="--", lw=2, color="r", label="_Chance", alpha=0.8
+        )
+    plt.title("Receiver Operating Characteristics")
+    plt.legend()
+    plt.show()
 
 
 def do_report(classifiers: List[Tuple[str, Any]], X, y):
@@ -154,7 +167,12 @@ if __name__ == "__main__":
         sys.exit(0)
 
     if args.graphs:
-        do_graphs([("voting", sentiment.voting_classifier)], X_test, y_test)
+        do_graphs(
+            [("voting", sentiment.voting_classifier)]
+            + list(sentiment.voting_classifier.sub_classifiers.items()),
+            X_test,
+            y_test,
+        )
         sys.exit(0)
 
     if args.learning:
