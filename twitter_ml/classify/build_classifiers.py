@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 from sklearn.metrics import auc, roc_curve
-from sklearn.model_selection import learning_curve
+from sklearn.model_selection import StratifiedKFold, learning_curve
 from sklearn.utils.multiclass import unique_labels
 from tqdm import tqdm
 from twitter_ml.classify.movie_reviews import MovieReviews
@@ -31,7 +31,10 @@ def do_graphs(classifiers: List[Tuple[str, Any]], X, y):
     :param X: test data
     :param y: test categories
     """
-    # plot confusion matries in a grid
+    if len(classifiers) < 1:
+        raise ValueError("Must provide at least 1 classifier")
+
+    # plot confusion matrices in a grid
     subplots_cols = 4
     subplots_rows = math.ceil(len(classifiers) / subplots_cols)
     logger.debug("Plot dimensions: %d x %d", subplots_rows, subplots_cols)
@@ -49,11 +52,9 @@ def do_graphs(classifiers: List[Tuple[str, Any]], X, y):
         y_pred = clf.predict(X)
         fpr, tpr, thresholds = roc_curve(y, y_pred)
         roc_auc = auc(fpr, tpr)
+        plt.plot(fpr, tpr, lw=1, label="ROC %s (AUC = %0.2f)" % (label, roc_auc))
         plt.plot(
-            fpr, tpr, lw=1, alpha=0.3, label="ROC %s (AUC = %0.2f)" % (label, roc_auc)
-        )
-        plt.plot(
-            [0, 1], [0, 1], linestyle="--", lw=2, color="r", label="_Chance", alpha=0.8
+            [0, 1], [0, 1], linestyle="--", lw=2, color="r", label="_Chance",
         )
     plt.title("Receiver Operating Characteristics")
     plt.legend()
@@ -111,6 +112,83 @@ def do_learning_curve(classifiers: List[Tuple[str, Any]], X, y):
     plt.show()
 
 
+def do_roc_k_fold(label, clf, X, y, k):
+    """
+    Plot ROC curves for varying sample sizes using k-fold cross validation.
+
+    :param label: name of the classifier
+    :param clf: classifier to plot
+    :param X: a matrix of samples. Note this is both training data and test data.
+    :param y: a vector of categories
+    :param k: number of folds to evaluate
+    """
+    mean_fpr = np.linspace(0, 1, 100)
+    tprs = []  # TPR results (interpolated)
+    aucs = []  # AUC results
+
+    cv = StratifiedKFold(n_splits=k)
+    fold_cnt = 0
+    for train_index, test_index in cv.split(X, y):
+        fold_cnt += 1
+        X_train = X[train_index]
+        y_train = y[train_index]
+        X_test = X[test_index]
+        y_test = y[test_index]
+        y_pred = clf.fit(X_train, y_train).predict(X_test)
+        fpr, tpr, thresholds = roc_curve(y_test, y_pred)
+
+        # interpolate tpr values across 100 measurements
+        tprs.append(np.interp(mean_fpr, fpr, tpr))
+        # tprs[-1][0] = 0.0
+
+        roc_auc = auc(fpr, tpr)
+        aucs.append(roc_auc)
+
+        # plot each ROC curve
+        plt.plot(
+            fpr,
+            tpr,
+            lw=1,
+            label="ROC %s - fold %d (AUC = %0.2f)" % (label, fold_cnt, roc_auc),
+        )
+
+    # plot random classifier ("chance")
+    plt.plot(
+        [0, 1], [0, 1], linestyle="--", lw=2, color="r", label="_Chance",  # no label
+    )
+
+    # calculate average ROC curve
+    mean_tpr = np.mean(tprs, axis=0)
+    # mean_tpr[-1] = 1.0
+    mean_auc = auc(mean_fpr, mean_tpr)
+    std_auc = np.std(aucs)
+    plt.plot(
+        mean_fpr,
+        mean_tpr,
+        color="b",
+        label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
+        lw=2,
+        alpha=0.8,
+    )
+
+    # plot std dev either side of the mean tpr curve
+    std_tpr = np.std(tprs, axis=0)
+    tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
+    tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
+    plt.fill_between(
+        mean_fpr,
+        tprs_lower,
+        tprs_upper,
+        color="grey",
+        alpha=0.2,
+        label=r"$\pm$ 1 std. dev.",
+    )
+
+    plt.title("ROC curve with various k-folds")
+    plt.legend()
+    plt.show()
+
+
 def _dump_metrics(label, clf, X, y):
     print("-----------------\nSUMMARY FOR CLASSIFIER: %s" % label)
     y_pred = clf.predict(X)
@@ -136,13 +214,16 @@ if __name__ == "__main__":
         "--graphs",
         action="store_true",
         default=False,
-        help="print classifier graphs and exit",
+        help="plot classifier graphs and exit",
     )
     parser.add_argument(
         "--learning",
         action="store_true",
         default=False,
-        help="print classifier learning curves",
+        help="plot classifier learning curves",
+    )
+    parser.add_argument(
+        "--roc-kfold", help="plot ROC curves with specified k-fold value",
     )
     args = parser.parse_args()
 
@@ -186,6 +267,13 @@ if __name__ == "__main__":
         classifiers = list(sentiment.voting_classifier.sub_classifiers.items())
         do_learning_curve(classifiers, X, y)
         sys.exit(0)
+
+    if args.roc_kfold:
+        label, clf = (
+            "voting",
+            sentiment.voting_classifier,
+        )  # list(sentiment.voting_classifier.sub_classifiers.items())[0]
+        do_roc_k_fold(label, clf, X, y, int(args.roc_kfold))
 
     # building classifiers is time-consuming so only do this if we get here
     logger.info("Creating classifiers...")

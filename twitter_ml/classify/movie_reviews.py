@@ -6,6 +6,7 @@ import random
 from typing import List, Tuple
 
 import nltk
+import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
@@ -154,7 +155,9 @@ class MovieReviews:
             ]
         )
 
-        X = list(X)
-        y = list(le.fit_transform(y))
+        # X = list(X)
+        X = np.array(X)
+        # y = list(le.fit_transform(y))
+        y = np.array(le.fit_transform(y))
 
         return X, y
