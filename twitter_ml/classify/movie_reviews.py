@@ -1,4 +1,4 @@
-"""Wrapper around the NLTK movie view databas."""
+"""Wrapper around the NLTK movie view database."""
 import logging
 import os
 import pickle
@@ -6,6 +6,7 @@ import random
 from typing import List, Tuple
 
 import nltk
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 from twitter_ml.classify.utils import Utils
@@ -77,7 +78,36 @@ class MovieReviews:
             logger.debug(e)
             pass
 
-        # lazy load the most common words to use for building features
+        # self._features = self._recreate_features_using_nltk(self.num_features)
+        self._features = self._recreate_features_using_sklearn(self.num_features)
+
+        # save the words used in the feature list (used when classifying)
+        feature_fn = "models/features.pickle"
+        logger.debug("Saving feature list to %s...", feature_fn)
+        with open(feature_fn, "wb") as features_f:
+            pickle.dump(self._features, features_f)
+        return self._features
+
+    def _recreate_features_using_sklearn(self, num_features) -> List[str]:
+        """
+        Create a feature set of the most commonly occurring tokens using scikit classes (CountVectorizer).
+
+        :param num_features: number of most frequently occurring tokens to include in the feature set
+        :return: a list of features
+        """
+        count_vect = CountVectorizer(max_features=num_features)
+        _X = count_vect.fit_transform(self.reviews.words())
+        return count_vect.get_feature_names()
+
+    def _recreate_features_using_nltk(self, num_features: int) -> List[str]:
+        """
+        Create a feature set of the most commonly occurring tokens using NLTK classes.
+
+        Note: this does not work. It will not find the most frequently used terms.
+
+        :param num_features: number of most frequently occurring tokens to include in the feature set
+        :return: a list of features
+        """
         all_words = []
         for w in tqdm(self.reviews.words(), desc="Feature identification"):
             w = w.lower()
@@ -91,14 +121,7 @@ class MovieReviews:
         # logger.debug("Frequency dist of 15 most common words:%s", all_words_dist.most_common(15))
         # logger.debug("Frequency of 'stupid':%d", all_words_dist["stupid"])
         # TODO tune word bag size
-        self._features = list(all_words_dist.keys())[: self.num_features]
-
-        # save the words used in the feature list (used when classifying)
-        feature_fn = "models/features.pickle"
-        logger.debug("Saving feature list to %s...", feature_fn)
-        with open(feature_fn, "wb") as features_f:
-            pickle.dump(self._features, features_f)
-        return self._features
+        return list(all_words_dist.keys())[:num_features]
 
     def get_samples(self) -> Tuple[List[int], List[int]]:
         """
