@@ -77,15 +77,15 @@ class Utils:
         classes = classes[unique_labels(y_true, y_pred)]
         if normalize:
             cm = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
-        print(title)
-        print(cm)
+        logger.debug(title)
+        logger.debug(cm)
 
-        im = ax.imshow(cm, interpolation="nearest", cmap=cmap)
+        im = ax.imshow(cm, interpolation="nearest", cmap=cmap)  # , aspect=2)
         ax.figure.colorbar(im, ax=ax)
         # We want to show all ticks...
         ax.set(
             xticks=np.arange(cm.shape[1]),
-            yticks=np.arange(cm.shape[0]),
+            # yticks=np.arange(cm.shape[0]), # dropping this solves the aspect and vertical alignment issues
             # ... and label them with the respective list entries
             xticklabels=classes,
             yticklabels=classes,
@@ -93,6 +93,8 @@ class Utils:
             ylabel="True label",
             xlabel="Predicted label",
         )
+        # hide y ticks
+        ax.set_yticks([])
 
         # Rotate the tick labels and set their alignment.
         plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
@@ -109,6 +111,6 @@ class Utils:
                     ha="center",
                     va="center",
                     color="white" if cm[i, j] > thresh else "black",
+                    bbox=dict(facecolor="red", alpha=0.5),
                 )
-        # fig.tight_layout()
         return ax

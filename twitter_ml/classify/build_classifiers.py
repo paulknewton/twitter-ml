@@ -42,7 +42,6 @@ def do_graphs(classifiers: List[Tuple[str, Any]], X, y):
         y_pred = clf.predict(X)
 
         Utils.plot_confusion_matrix(y, y_pred, unique_labels(y), label, ax)
-    # plt.title("x")
     plt.show()
 
     # plot ROC curve and calculate AUC
