@@ -97,7 +97,7 @@ class MovieReviews:
         :return: a list of features
         """
         count_vect = CountVectorizer(max_features=num_features)
-        _X = count_vect.fit_transform(self.reviews.words())
+        X_ = count_vect.fit_transform(self.reviews.words())
         return count_vect.get_feature_names()
 
     def _recreate_features_using_nltk(self, num_features: int) -> List[str]:
