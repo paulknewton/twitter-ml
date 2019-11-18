@@ -19,6 +19,8 @@ Project to analyse text streams (tweets or docs) using big data and machine lear
 
 ![learning_curve](learning_curve.png)
 
+![roc_kfolds](roc_kfolds.png)
+
 ## Features
 * Classifier Builder - standalone tool to configure classifiers and train them using pre-classified samples
 * Text Classify - a standalone program for classifying the sentiment of text using NLTK and SciKit-Learn classifiers
