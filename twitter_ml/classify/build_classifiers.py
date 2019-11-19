@@ -223,9 +223,16 @@ if __name__ == "__main__":
         help="plot classifier learning curves",
     )
     parser.add_argument(
-        "--roc-kfold", help="plot ROC curves with specified k-fold value",
+        "--roc-kfold",
+        help="plot ROC curves with specified k-fold value",
+        default=False,
+        action="store_true",
+    )
+    parser.add_argument(
+        "-k", help="value to use for k-folding data (default 3)", default=3
     )
     args = parser.parse_args()
+    logger.info(args)
 
     data = MovieReviews(3000)
 
@@ -241,11 +248,14 @@ if __name__ == "__main__":
     logger.info("Loading feature sets and training data...")
     X, y = data.get_samples()
 
-    # TODO split data into k-fold samples
-    X_train = X[:1900]
-    y_train = y[:1900]
-    X_test = X[1900:]
-    y_test = y[1900:]
+    # split data into k-fold samples (StratifiedKFold will balance the pos/neg samples)
+    k_fold = int(args.k)
+    skf = StratifiedKFold(n_splits=k_fold)
+    train_index, test_index = next(skf.split(X, y))
+    X_train = X[train_index]
+    y_train = y[train_index]
+    X_test = X[test_index]
+    y_test = y[test_index]
 
     if args.report:
         classifiers = [("voting", sentiment.voting_classifier)] + list(
@@ -273,7 +283,7 @@ if __name__ == "__main__":
             "voting",
             sentiment.voting_classifier,
         )  # list(sentiment.voting_classifier.sub_classifiers.items())[0]
-        do_roc_k_fold(label, clf, X, y, int(args.roc_kfold))
+        do_roc_k_fold(label, clf, X, y, k_fold)
 
     # building classifiers is time-consuming so only do this if we get here
     logger.info("Creating classifiers...")

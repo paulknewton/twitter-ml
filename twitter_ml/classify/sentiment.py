@@ -67,7 +67,6 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
         # allow chaining
         return self
 
-    # TODO change signature
     def predict(self, X) -> List[int]:
         """
         Classify the features using the list of internal classifiers - classification is calculated by majority vote.

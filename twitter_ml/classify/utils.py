@@ -15,9 +15,7 @@ class Utils:
     """Helper class of utility functions."""
 
     @staticmethod
-    def encode_features(
-        word_features: List[str], document: List[str]
-    ) -> np.array:  # FIXME list or array?
+    def encode_features(word_features: List[str], document: List[str]) -> np.array:
         """
         Generate a features set for a given feature list and word list.
 
