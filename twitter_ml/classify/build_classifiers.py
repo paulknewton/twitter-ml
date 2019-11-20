@@ -71,7 +71,7 @@ def do_report(classifiers: List[Tuple[str, Any]], X, y):
     :param X: a matrix of test samples
     :param y: a vector of categories
     """
-    logger.info("Samples: len(X, y) = %d, %d" % (len(X), len(y)))
+    logger.info("Evaluating classifiers with %d samples", len(X))
     unique, counts = np.unique(np.array(y), return_counts=True)
     logger.info("Categories: " + str(list(zip(unique, counts))))
 
