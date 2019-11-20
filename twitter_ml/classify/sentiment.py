@@ -49,7 +49,7 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
 
         :return the trained classifier
         """
-        logger.info("Training voting classifier")
+        logger.debug("Training voting classifier")
 
         logger.debug("len(X, y) = %d, %d", len(X), len(y))
         unique, counts = np.unique(np.array(y), return_counts=True)
@@ -182,11 +182,14 @@ class Sentiment:
         """
         Create a VoteClassifier from a collection of sub-classifiers and train/test them with the provided data.
 
+        This will overwrite any previous model stored in models/voting.pickle
+
         :param X_train: the data to use when training the classifier
-        :param X_test: the data to use to evaluate the classifier
+        :param y_train: the categories to use when training the classifier
         """
         # wrap the sub classifiers in a VoteClassifier
         self._voting_classifier = VoteClassifier(self.sub_classifiers)
+        logger.info("Training with %d samples", len(X_train))
         self._voting_classifier.fit(X_train, y_train)
         Sentiment._saveit(self._voting_classifier, "voting.pickle")
 

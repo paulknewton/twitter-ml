@@ -36,7 +36,7 @@ class MovieReviews:
         nltk.download("movie_reviews")
         from nltk.corpus import movie_reviews
 
-        self._data = movie_reviews
+        self._data = movie_reviews  #  max is 2000 TODO - raise exception if num_features is too high
 
         self._features = []  #  lazy load
 
@@ -97,7 +97,7 @@ class MovieReviews:
         :return: a list of features
         """
         count_vect = CountVectorizer(max_features=num_features)
-        X_ = count_vect.fit_transform(self.reviews.words())
+        count_vect.fit_transform(self.reviews.words())
         return count_vect.get_feature_names()
 
     def _recreate_features_using_nltk(self, num_features: int) -> List[str]:

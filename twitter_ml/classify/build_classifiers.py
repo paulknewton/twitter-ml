@@ -35,6 +35,7 @@ def do_graphs(classifiers: List[Tuple[str, Any]], X, y):
         raise ValueError("Must provide at least 1 classifier")
 
     # plot confusion matrices in a grid
+    logger.info("Calculating confusion matrices with %d samples", len(X_test))
     subplots_cols = 4
     subplots_rows = math.ceil(len(classifiers) / subplots_cols)
     logger.debug("Plot dimensions: %d x %d", subplots_rows, subplots_cols)
@@ -48,6 +49,7 @@ def do_graphs(classifiers: List[Tuple[str, Any]], X, y):
     plt.show()
 
     # plot ROC curve and calculate AUC
+    logging.info("Calculating ROC curves for %d sanples", len(X))
     for label, clf in classifiers:
         y_pred = clf.predict(X)
         fpr, tpr, thresholds = roc_curve(y, y_pred)
@@ -86,6 +88,7 @@ def do_learning_curve(classifiers: List[Tuple[str, Any]], X, y):
     :param y: a vector of categories
     """
     fig, ax = plt.subplots()
+    logging.info("Calculating learning curves over 0-%d samples", len(X))
     for label, clf in tqdm(classifiers, desc="Calculating learning curves"):
         train_sizes = np.linspace(0.05, 1, 50)
         train_sizes, train_scores, test_scores = learning_curve(
@@ -208,13 +211,10 @@ if __name__ == "__main__":
         "--report",
         action="store_true",
         default=False,
-        help="print classifier/sub-classifier metrics and exit",
+        help="print classifier/sub-classifier metrics",
     )
     parser.add_argument(
-        "--graphs",
-        action="store_true",
-        default=False,
-        help="plot classifier graphs and exit",
+        "--graphs", action="store_true", default=False, help="plot classifier graphs",
     )
     parser.add_argument(
         "--learning",
@@ -229,7 +229,7 @@ if __name__ == "__main__":
         action="store_true",
     )
     parser.add_argument(
-        "-k", help="value to use for k-folding data (default 3)", default=3
+        "-k", help="value to use for k-folding data (default 5)", default=5
     )
     args = parser.parse_args()
     logger.info(args)
@@ -271,12 +271,6 @@ if __name__ == "__main__":
             X_test,
             y_test,
         )
-        sys.exit(0)
-
-    if args.learning:
-        classifiers = list(sentiment.voting_classifier.sub_classifiers.items())
-        do_learning_curve(classifiers, X, y)
-        sys.exit(0)
 
     if args.roc_kfold:
         label, clf = (
@@ -284,6 +278,10 @@ if __name__ == "__main__":
             sentiment.voting_classifier,
         )  # list(sentiment.voting_classifier.sub_classifiers.items())[0]
         do_roc_k_fold(label, clf, X, y, k_fold)
+
+    if args.learning:
+        classifiers = list(sentiment.voting_classifier.sub_classifiers.items())
+        do_learning_curve(classifiers, X, y)
 
     # building classifiers is time-consuming so only do this if we get here
     logger.info("Creating classifiers...")
