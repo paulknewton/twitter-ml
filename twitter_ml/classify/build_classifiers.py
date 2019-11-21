@@ -13,9 +13,9 @@ from sklearn.metrics import auc, roc_curve
 from sklearn.model_selection import StratifiedKFold, learning_curve
 from sklearn.utils.multiclass import unique_labels
 from tqdm import tqdm
-from twitter_ml.classify.movie_reviews import MovieReviews
 from twitter_ml.classify.sentiment import Sentiment
 from twitter_ml.classify.utils import Utils
+from twitter_ml.data.movie_reviews import MovieReviews
 
 with open("logging.yaml", "rt") as f:
     logging.config.dictConfig(yaml.safe_load(f.read()))
@@ -259,7 +259,7 @@ if __name__ == "__main__":
 
     if args.report:
         classifiers = [("voting", sentiment.voting_classifier)] + list(
-            sentiment.voting_classifier.sub_classifiers.items()
+            sentiment.voting_classifier.named_estimators_.items()
         )
         do_report(classifiers, X_test, y_test)
         sys.exit(0)
@@ -267,7 +267,9 @@ if __name__ == "__main__":
     if args.graphs:
         do_graphs(
             [("voting", sentiment.voting_classifier)]
-            + list(sentiment.voting_classifier.sub_classifiers.items()),
+            + list(
+                sentiment.voting_classifier.named_estimators_.items()
+            ),  # use the fitted estimators
             X_test,
             y_test,
         )
@@ -280,7 +282,7 @@ if __name__ == "__main__":
         do_roc_k_fold(label, clf, X, y, k_fold)
 
     if args.learning:
-        classifiers = list(sentiment.voting_classifier.sub_classifiers.items())
+        classifiers = sentiment.voting_classifier.estimators
         do_learning_curve(classifiers, X, y)
 
     # building classifiers is time-consuming so only do this if we get here

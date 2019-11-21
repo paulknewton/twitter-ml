@@ -8,13 +8,14 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
-from twitter_ml.classify.config import Config
+from sklearn.ensemble import VotingClassifier
 from twitter_ml.classify.utils import Utils
+from twitter_ml.utils.classify_config import Config
 
 logger = logging.getLogger(__name__)
 
 
-class VoteClassifier(BaseEstimator, ClassifierMixin):
+class CustomVoteClassifier(BaseEstimator, ClassifierMixin):
     """
     Classifier based on a collection of other classifiers.
 
@@ -39,8 +40,18 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
         self._fitted_classifiers: Dict[str, Any] = {}
 
     @property
-    def sub_classifiers(self):
-        """Get the internal classifiers used by the voting classifier."""
+    def estimators(self) -> List[Tuple[str, Any]]:
+        """Get the raw classifier as a list of name, classifier tuples."""
+        return list(self._raw_classifiers.items())
+
+    @property
+    def estimators_(self) -> List[Any]:
+        """Get the internal fitted classifiers used by the voting classifier."""
+        return list(self._fitted_classifiers.values())
+
+    @property
+    def named_estimators_(self) -> Dict[str, Any]:
+        """Get the internal fitted classifiers as a dictionary, accessible by name."""
         return self._fitted_classifiers
 
     def fit(self, X, y: List[str]):
@@ -102,14 +113,14 @@ class VoteClassifier(BaseEstimator, ClassifierMixin):
         raise NotImplementedError()
         if sub_classifier:
             logger.info("Calculating confidence with '%s'", sub_classifier)
-            classifier_list = {sub_classifier: self.sub_classifiers[sub_classifier]}
+            classifier_list = {sub_classifier: self.named_estimators_[sub_classifier]}
         else:
             logger.info("Calculating confidence with 'VoteClassifier'")
-            classifier_list = self.sub_classifiers
+            classifier_list = self.estimators_
 
         votes = []
-        for label, c in classifier_list.items():
-            v = c[0].predict(features)
+        for c in classifier_list.items():
+            v = c.predict(features)
             votes.append(v)
 
         choice_votes = votes.count(mode(votes))
@@ -126,14 +137,10 @@ class Sentiment:
         self.feature_list = None
 
         # load list of classifiers from config file
-        config = Config(config_filename)
-
-        voting_tag = "voting"
-        voting_config = config.get_config_value(voting_tag)
+        self.config = Config(config_filename)
+        voting_config = self.config.get_config_value("voting")
         if not voting_config:
-            raise KeyError(
-                "Could not find section '%s' in config file. Exiting" % voting_config
-            )
+            raise KeyError("Could not find section 'voting' in config file. Exiting")
 
         # a voting classifer must have an odd number of sub-classifiers to avoid a tied vote
         if len(voting_config) % 2 == 0:
@@ -141,8 +148,8 @@ class Sentiment:
                 "A voting classifer must have an odd number of sub-classifiers to avoid a tied vote"
             )
 
+        # read the list of sub-classifiers from the config file and instantiate them
         self.sub_classifiers = {}
-
         for clf_label, clf_config in voting_config.items():
             logging.debug("Import %s", clf_config["module"])
             module = import_module(clf_config["module"])
@@ -152,7 +159,7 @@ class Sentiment:
             self.sub_classifiers[clf_label] = (class_(), clf_config["description"])
 
     @property
-    def voting_classifier(self) -> VoteClassifier:
+    def voting_classifier(self) -> CustomVoteClassifier:
         """
         Return the majority voting classifier to perform the classification.
 
@@ -163,6 +170,9 @@ class Sentiment:
             logger.debug("Reading classifiers from disk...")
             with open("models/voting.pickle", "rb") as classifier_f:
                 self._voting_classifier = pickle.load(classifier_f)
+                logger.info(
+                    "Voting Classifier type: %s", type(self._voting_classifier).__name__
+                )
         return self._voting_classifier
 
     @staticmethod
@@ -187,8 +197,23 @@ class Sentiment:
         :param X_train: the data to use when training the classifier
         :param y_train: the categories to use when training the classifier
         """
-        # wrap the sub classifiers in a VoteClassifier
-        self._voting_classifier = VoteClassifier(self.sub_classifiers)
+        # read the type of voting classifier from the config file
+        main_config = self.config.get_config_value("main")
+        if not main_config:
+            raise KeyError("Could not find section 'main' in config file")
+        if main_config["voting"] == "custom":
+            logger.debug("voting_type = custom")
+            self._voting_classifier = CustomVoteClassifier(self.sub_classifiers)
+        elif main_config["voting"] == "sklearn":
+            logger.debug("voting type = sklearn")
+            # transform sub-classifiers dict to a tuple list
+            estimators = [
+                (label, clf) for label, (clf, _desc) in self.sub_classifiers.items()
+            ]
+            self._voting_classifier = VotingClassifier(
+                estimators=estimators, voting="hard"
+            )
+
         logger.info("Training with %d samples", len(X_train))
         self._voting_classifier.fit(X_train, y_train)
         Sentiment._saveit(self._voting_classifier, "voting.pickle")
@@ -219,7 +244,7 @@ class Sentiment:
 
         if sub_classifier:
             logger.debug("Using sub-classifier: %s", sub_classifier)
-            clf = self.voting_classifier.sub_classifiers[sub_classifier]
+            clf = self.voting_classifier.named_estimators_[sub_classifier]
         else:
             logger.debug("Using vote classifier")
             clf = self.voting_classifier

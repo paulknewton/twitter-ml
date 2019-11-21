@@ -1,3 +1,6 @@
+main:
+    voting: custom  # values: custom, sklearn
+
 voting:
     multinomilnb:
         module: sklearn.naive_bayes

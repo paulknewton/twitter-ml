@@ -2,6 +2,8 @@
 """CLI command to classify a text as +ve or -ve using classifiers."""
 import argparse
 import logging.config
+import pickle
+import string
 import sys
 from collections import Counter
 
@@ -13,6 +15,7 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from pywaffle import Waffle
 from twitter_ml.classify.sentiment import Sentiment
+from twitter_ml.classify.utils import Utils
 from wordcloud import WordCloud
 
 with open("logging.yaml", "rt") as f:
@@ -86,6 +89,19 @@ if __name__ == "__main__":
                 print_feature_encoding(feature_list, feature_encoding)
             print("Classification: %s" % category)
             results.append(category)
+
+            # classify with the sub-classifiers
+            eclf = sentiment.voting_classifier
+            with open("models/features.pickle", "rb") as features_f:
+                feature_list = pickle.load(features_f)
+                feature_encoding = Utils.encode_features(
+                    feature_list,
+                    t.translate(
+                        str.maketrans("", "", string.punctuation)
+                    ).split(),  # remove punctuation
+                ).reshape(1, -1)
+            for label, clf in eclf.named_estimators_.items():
+                print("- %s: %s" % (label, clf.predict(feature_encoding)[0]))
 
         if args.wordcloud:
             all_words = " ".join(args.text)

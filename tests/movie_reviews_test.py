@@ -1,7 +1,7 @@
 """Test the movie review wrapper."""
 import string
 
-from twitter_ml.classify.movie_reviews import MovieReviews
+from twitter_ml.data.movie_reviews import MovieReviews
 
 
 def test_features():

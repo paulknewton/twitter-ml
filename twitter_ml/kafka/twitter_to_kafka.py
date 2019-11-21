@@ -5,7 +5,7 @@ import yaml
 from kafka import KafkaClient, SimpleProducer
 from tweepy import OAuthHandler, Stream
 from tweepy.streaming import StreamListener
-from twitter_ml.utils.config import Config
+from twitter_ml.utils.twitter_config import Config
 
 publish_topic = "brexit"  # topic used to publish
 
