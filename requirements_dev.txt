@@ -1,4 +1,4 @@
-black==19.10b0
+black==23.3.0
 bump2version>=0.5.11
 coverage>=4.5.4
 flake8-docstrings==1.5.0
